@@ -34,6 +34,8 @@ D-Fire [[link](https://github.com/gaiasd/DFireDataset)] is an image dataset of f
 
 Consisted of all D-Fire's images, with segmentation mask labels for the task of image smoke segmentation. The ground truth labels were generated from a pre-trained SAM model, guided by the bounding box labels of the D-Fire dataset.
 
+![](./fig0.jpg)
+
 #### Preparing to Convert D-Fire to S-Smoke
 
 To replicate the steps involved for the generation of image labels, download and decompress the D-Fire dataset; with the following directory structure
