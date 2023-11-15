@@ -1,6 +1,6 @@
 # Forest Smoke Segmentation
 
-The objective of this repository is to serve as a central reference point for accessible raw data, both labeled and unlabeled, specifically tailored for image segmentation and detection tasks related to the smoke class. In addition to the smoke image segmentation data, it also provides tools for image data curation. Also a guide to automatically convert a large amount of image detection-based labels to image segmentation labels. All accompanied by concise documentation of the associated pipeline.
+The objective of this repository is to serve as a central reference point for accessible labeled data specifically tailored for the task of image smoke segmentation. In also provides tools for image data curation and a guide to automatically convert a large amount of image detection-based labels to image segmentation labels. All accompanied by concise documentation of the associated pipeline.
 
 ### Next Updates
 
@@ -8,60 +8,79 @@ The repository will encompass the implementation of a proposed architecture for 
 
 ## Dataset
 
-### External Datasets
+### External Dataset
 
-#### 1. UNETSMOKE
+#### D-Fire
 
-UNETSMOKE [[link](https://github.com/sonvbhp199/Unet-Smoke)] is an image dataset containing 2,000 images in total. Each image is paired with a binary segmentation mask that splits the image into smoke vs non-smoke area.
+D-Fire [[link](https://github.com/gaiasd/DFireDataset)] is an image dataset of fire and smoke occurrences designed for machine learning and object detection algorithms with more than 21,000 images. The bounding box labels are stored inside `.txt` files in YOLO format (class + cxcywh).
 
-#### 2. SMOKE5K
-
-SMOKE5K [[link](https://github.com/SiyuanYan1/Transmission-BVM)] is an image dataset containing 5,400 images in total. The dataset is consisted of 1,400 real and 4,000 synthetic images. Each image is paired with a binary segmentation mask that splits the image into smoke vs non-smoke area.
-
-![](./fig0.jpeg)
-
-#### 3. D-Fire
-
-D-Fire [[link](https://github.com/gaiasd/DFireDataset)] is an image dataset of fire and smoke occurrences designed for machine learning and object detection algorithms with more than 21,000 images.
-
-### Directory Structure
+### Directory
 
 ```
 .
-├── datasets
-|   ├── UNETSMOKE
-|   └── SMOKE5K
+├── fig0.jpg
+├── LICENSE
+├── models
+├── paths.json [Developer must create this]
 ├── README.md
-├── src
-|   ├── parser.py
-|   └── visuals.py
-└── paths.json
+└── src
+    ├── bbox2segm_mask.py
+    ├── data_tools.py
+    ├── main.py
+    └── visuals.py
 ```
 
-### Installation
+### S-Smoke
 
-If you seek to convert a set of bounding box labels into segmentation masks, then we shall install `segment-anything` [[link](https://github.com/facebookresearch/segment-anything)] through
+Consisted of all D-Fire's images, with segmentation mask labels for the task of image smoke segmentation. The ground truth labels were generated from a pre-trained SAM model, guided by the bounding box labels of the D-Fire dataset.
+
+#### Preparing to Convert D-Fire to S-Smoke
+
+To replicate the steps involved for the generation of image labels, download and decompress the D-Fire dataset; with the following directory structure
+```
+D-Fire
+├── test
+|   ├── labels
+|   └── images
+└── train
+    ├── labels
+    └── images
+```
+To align the paths with the currently provided scripts, you should rename the directories with names `labels` to `det_labels`. Additionally add two directories inside `test` and `train` respectively, both with names `segm_labels`. After the proper application of the preceding instructions, the resulting dataset's structure will look exactly like this
+```
+D-Fire
+├── test
+|   ├── det_labels
+|   ├── images
+|   └── segm_labels
+└── train
+    ├── det_labels
+    ├── images
+    └── segm_labels
+```
+Install `segment-anything` [[link](https://github.com/facebookresearch/segment-anything)] through
 ```
 python3 -m pip install git+https://github.com/facebookresearch/segment-anything.git
 ```
-which is based on a pre-trained segmentation model called SAM. Download this model [[link](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth)] and place it at the `./models` directory.
+which is based on a pre-trained segmentation model called SAM. Now download SAM through [[link](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth)] and place it at the `./models` directory.
 
-### Usage
+#### Setting Up All Paths
 
-Before executing any code, first navigate in `./src`. It is assumed that the user has downloaded and decompressed the corresponding data files. The paths of the resulting data directories along with the SAM model's file path should be specified inside `./paths.json`.
+It is assumed that the user has downloaded and decompressed the corresponding data files. The paths of the data's directory along with the SAM model's file path should be specified inside `./paths.json`.
 ```
 {
-    "smoke5k_dp": "<INSERT SMOKE 5K DATASET DIRECTORY>",
-    "dfire_dp": "<INSERT D-FIRE DATASET DIRECTORY>",
-    "sam_fp": "<SAM MODEL FILE>"
+    "ssmoke_data_dp": "<INSERT D-FIRE DATASET DIRECTORY (e.g. ~/Downloads/D-Fire)>",
+    "sam_fp": "<SAM MODEL FILE PATH (e.g. ../models/sam_vit_h_4b8939.pt)>"
 }
 ```
 
-<!-- #### Convert Detection Labels to Segmentation Labels through SAM
+#### Conversion from D-Fire to S-Smoke
 
-\[Empty\] -->
-
-
+Inside `main.py`, set `CONVERT_BBOXES_TO_SEGMENTATION_MASKS` to `True`. Navigate in `./src` and apply
+```
+python3 main.py
+```
+This process will potentially take at least one day to complete.
 
 ## Citation
 

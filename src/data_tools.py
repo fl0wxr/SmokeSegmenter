@@ -110,8 +110,7 @@ class DetData:
             Object detection data parsing with YOLO's bounding box label format. Classes: 0 -> Smoke, 1 -> Fire.
     '''
 
-    def __init__(self, dataset_dp, processed_dataset_dp = None, multiple_instances = False):
-        self.pause_ = False
+    def __init__(self, dataset_dp):
 
         self.class_idcs = {'smoke': 0, 'fire': 1}
         self.classes = [None for class_idx in range(len(self.class_idcs))]
@@ -123,32 +122,33 @@ class DetData:
 
         self.n_classes = len(self.class_idcs)
         self.dataset_dp = dataset_dp
-        self.processed_dataset_dp = processed_dataset_dp
-        self.multiple_instances = multiple_instances
 
-        assert (self.multiple_instances and processed_dataset_dp != None) or (not self.multiple_instances and processed_dataset_dp == None), 'E: Fix it.'
-        if self.multiple_instances:
+        self.imgs_fps, self.bboxes_fps = self.generate_data_paths()
+        self.n_instances = len(self.imgs_fps)
 
-            self.imgs_fnames, self.bboxes_fnames = self.generate_data_paths()
-            self.n_instances = len(self.imgs_fnames)
+        overwrite_choices = {'O': 'Overwrite', 'I': 'Ignore'}
+        inp = print('If already generated output label files are found, how should they be handled?\n[I] Ignore files\n[O] Overwrite files with newly processed ones\n> I'); inp = 'I'
+        while inp not in overwrite_choices.keys():
+            inp = input('Select a valid input:\n> ')
+        print('Proceeding with:\n%s\n\n---'%overwrite_choices[inp])
+        self.overwrite_switch = inp == 'O'
 
-            self.INSTANCE_IDX = -1
+        self.INSTANCE_IDX = -1
 
     def __next__(self):
 
-        if self.multiple_instances == False:
-            print('W: This only works for directory copies.')
-            return None
-
         self.INSTANCE_IDX += 1
-        print('List index:', self.INSTANCE_IDX)
-        if self.INSTANCE_IDX <= self.n_instances - 1:
-            img_fname = self.imgs_fnames[self.INSTANCE_IDX]
-            bboxes_fname = self.bboxes_fnames[self.INSTANCE_IDX]
-            assert img_fname.split('/')[-1].split('.')[-2] == bboxes_fname.split('/')[-1].split('.')[-2], 'E: Image bbox file name pair incompatibility'
-            self.img, self.bboxes = self.get_one_det_instance_dfire(img_fp = img_fname, bbox_fp = bboxes_fname)
-            self.imgs_fnames_out = self.processed_dataset_dp + self.imgs_fnames[self.INSTANCE_IDX].split('/')[-1]
-            self.bboxes_fnames_out = '.'.join((self.processed_dataset_dp + self.bboxes_fnames[self.INSTANCE_IDX].split('/')[-1]).split('.')[:-1] + ['json'])
+        if self.INSTANCE_IDX <= 2:#self.n_instances - 1:
+
+            print('List index:', self.INSTANCE_IDX)
+
+            img_fp = self.imgs_fps[self.INSTANCE_IDX]
+            bboxes_fp = self.bboxes_fps[self.INSTANCE_IDX]
+
+            assert img_fp.split('/')[-1].split('.')[-2] == bboxes_fp.split('/')[-1].split('.')[-2], 'E: Image bounding box file name pair incompatibility'
+
+            self.img, self.bboxes = self.get_one_det_instance_ssmoke(img_fp = img_fp, bboxes_fps = bboxes_fp)
+            self.mask_fp = '/'.join(self.bboxes_fps[self.INSTANCE_IDX].split('/')[:-2] + ['seg_labels/']) + '.'.join((self.bboxes_fps[self.INSTANCE_IDX].split('/')[-1]).split('.')[:-1] + ['png'])
 
             return True
 
@@ -156,18 +156,17 @@ class DetData:
 
             return False
 
-    def save_pos_smoke(self):
+    def save_segm_labels(self, mask: np.ndarray):
 
-        if self.multiple_instances == False:
-            print('W: This only works for directory copies.')
-            return None
+        if self.overwrite_switch:
+            print('W: Duplicate file will be overwritten')
+        else:
+            print('Ignoring\n%s\n---'%(self.mask_fp), end = 2 * '\n')
+            next(self)
 
-        if self.bboxes != [] and not os.path.exists(self.imgs_fnames_out):
-            img_pil = Image.fromarray(self.img)
-            img_pil.save(self.imgs_fnames_out)
-
-            with open(file = self.bboxes_fnames_out, mode = 'w') as json_file:
-                json.dump(self.bboxes, json_file)
+        mask_ = Image.fromarray(mask)
+        mask_.save(self.mask_fp)
+        print('Mask saved at\n%s'%(self.mask_fp))
 
     def get_yolo_bboxes(self, path: str) -> list[list]:
         '''
@@ -283,18 +282,18 @@ class DetData:
 
         bboxes_paths = glob\
         (
-            pathname = self.dataset_dp + 'train/labels/**/*.txt',
+            pathname = self.dataset_dp + 'train/det_labels/**/*.txt',
             recursive = True
         ) + \
         glob\
         (
-            pathname = self.dataset_dp + 'test/labels/**/*.txt',
+            pathname = self.dataset_dp + 'test/det_labels/**/*.txt',
             recursive = True
         )
 
         return sorted(imgs_paths), sorted(bboxes_paths)
 
-    def get_one_det_instance_dfire(self, img_fp: str = None, bboxes_fp: str = None) -> tuple[np.ndarray, list[list]]:
+    def get_one_det_instance_ssmoke(self, img_fp: str = None, bboxes_fps: str = None) -> tuple[np.ndarray, list[list]]:
         '''
             Description:
                 Receives an image path and a JSON file that contains its bounding boxes in YOLO format and returns the respective objects.
@@ -304,18 +303,18 @@ class DetData:
                 bbox
         '''
 
-        if img_fp == None or bboxes_fp == None:
+        if img_fp == None or bboxes_fps == None:
             img_fp = self.dataset_dp + 'train/images/' + 'WEB09440' + '.jpg'
-            bboxes_fp = self.dataset_dp + 'train/labels/' + 'WEB09440' + '.txt'
+            bboxes_fps = self.dataset_dp + 'train/det_labels/' + 'WEB09440' + '.txt'
 
-        imgs_dfire = np.array(Image.open(img_fp).convert("RGB"))
+        imgs_ssmoke = np.array(Image.open(img_fp).convert("RGB"))
 
-        yolo_bboxes_dfire = self.get_yolo_bboxes(path = bboxes_fp)
+        yolo_bboxes_ssmoke = self.get_yolo_bboxes(path = bboxes_fps)
 
-        norm_vertex_bboxes_dfire = self.yolo_bboxes_to_vertex_bboxes(yolo_bboxes = yolo_bboxes_dfire)
+        norm_vertex_bboxes_ssmoke = self.yolo_bboxes_to_vertex_bboxes(yolo_bboxes = yolo_bboxes_ssmoke)
 
-        norm_vertex_bboxes_dfire = self.label_drop_all_classes_except_first(norm_vertex_bboxes_dfire)
+        norm_vertex_bboxes_ssmoke = self.label_drop_all_classes_except_first(norm_vertex_bboxes_ssmoke)
 
-        vertex_bboxes_dfire = self.norm_bboxes_to_image_bboxes(img_shape = imgs_dfire.shape, norm_vertex_bboxes = norm_vertex_bboxes_dfire)
+        vertex_bboxes_ssmoke = self.norm_bboxes_to_image_bboxes(img_shape = imgs_ssmoke.shape, norm_vertex_bboxes = norm_vertex_bboxes_ssmoke)
 
-        return imgs_dfire, vertex_bboxes_dfire
+        return imgs_ssmoke, vertex_bboxes_ssmoke

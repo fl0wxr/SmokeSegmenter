@@ -1,10 +1,11 @@
 *
-datasets
+!produced_plots
+!produced_plots/.gitkeep
 !.gitignore
 !README.md
 !src
 !src/*.py
-!fig0.jpeg
+!fig0.jpg
 !LICENSE
 !produced_plots
 src/__pycache__

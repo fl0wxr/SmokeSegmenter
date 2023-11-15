@@ -19,6 +19,8 @@ def bbox2segm_mask(img: np.ndarray, bboxes: list[list], sam_fp: str) -> np.ndarr
             mask. Shape (H, W). Segmentation mask.
     '''
 
+    if len(bboxes) == 0: return np.zeros(img.shape[:-1], dtype = np.uint8)
+
     sam = sam_model_registry['default'](checkpoint = sam_fp)
     predictor = SamPredictor(sam)
 
