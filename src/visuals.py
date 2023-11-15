@@ -25,7 +25,7 @@ def masked_image(img: np.ndarray, bboxes: list[list], classes: list[str]) -> lis
 
     thickness = 2
 
-    colors = [(228, 205, 0), (68, 252, 4), (255, 0, 0)]
+    colors = [(0, 206, 209), (68, 252, 4), (255, 0, 0)] ## (228, 205, 0)
 
     for bbox in bboxes:
 
@@ -58,11 +58,11 @@ class SegmVisuals:
 
     def __init__(self, classes):
 
-        self.n_axes = 3
+        self.n_axes = 2
         self.classes = classes
         self.n_classes = len(self.classes)
-        self.fig, self.axes = plt.subplots(nrows = 1, ncols = self.n_axes, figsize = (12, 5))
-        self.ax_titles = ('Image', 'Segmentation Mask', 'Combined')
+        self.fig, self.axes = plt.subplots(nrows = 1, ncols = self.n_axes, figsize = (12, 6.3))
+        self.ax_titles = ('Image', 'Combined') #, 'Segmentation Mask'
 
     def combine_img_mask(self, img: np.ndarray, mask: np.ndarray) -> np.ndarray:
         '''
@@ -79,7 +79,7 @@ class SegmVisuals:
 
         ## Can take values in the interval (0, 1)
         alpha = 0.5
-        colors = [None, (228, 205, 0)]
+        colors = [None, (0, 206, 209)] #(228, 205, 0)
         color_ClassIdcs = {}
         class_idcs = np.unique(mask).tolist()
         class_idcs.sort()
@@ -117,7 +117,7 @@ class SegmVisuals:
         combined = self.combine_img_mask(img = img, mask = mask)
         if bboxes != None: combined = masked_image(img = combined, bboxes = bboxes, classes = self.classes)
 
-        for ax_idx, (ax, img_) in enumerate(zip(self.axes, (img, mask, combined))):
+        for ax_idx, (ax, img_) in enumerate(zip(self.axes, (img, combined))):
             ax.imshow(X = img_)
             ax.set_title(self.ax_titles[ax_idx])
             ax.axis('off')

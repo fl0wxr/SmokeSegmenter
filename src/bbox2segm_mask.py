@@ -1,27 +1,53 @@
 import numpy as np
 from segment_anything import SamPredictor, sam_model_registry
+import torch
 
 from pdb import set_trace as pause
 
 
-def bbox2segm_mask(img, bboxes, sam_fp):
+def bbox2segm_mask(img: np.ndarray, bboxes: list[list], sam_fp: str) -> np.ndarray:
+    '''
+        Description:
+            Applies segmentation based solely on bounding boxes. There is exactly one class (the smoke class) with its mask index set to 1.
+
+        Args:
+            img. Shape (H, W, C). The input image.
+            bboxes. Outter length is n_bboxes, inner length is 5 where the first element is the class index, and the following 4 are the bounding box coordinates in the format xmin.
+            sam_fp. File path of the corresponding SAM model.
+
+        Returns:
+            mask. Shape (H, W). Segmentation mask.
+    '''
 
     sam = sam_model_registry['default'](checkpoint = sam_fp)
-    labels = [bbox[0] for bbox in bboxes]
-    bboxes = np.array([bbox[1:] for bbox in bboxes])
-
     predictor = SamPredictor(sam)
+
+    labels = [bbox[0] for bbox in bboxes]
+
+    ## Columns must be in xyxy format with shape (n_bboxes, 4)
+    bboxes_coordinates = np.array([bbox[1:] for bbox in bboxes])[:, [0, 2, 1, 3]]
+
     predictor.set_image(img)
-    masks, _, _ = predictor.predict\
-    (
-        # point_coords = None,
-        # point_labels = None,
-        # box = bboxes,
-        # multimask_output = True,
-    )
 
-    print(np.sum(masks))
-    pause()
+    masks = []
+    for bbox_coordinates in bboxes_coordinates:
 
-    return masks[2, ...]
+        ## Shape (1, H, W). Segmentation masks. The second dimension's slices are the same bounding boxes mask with different prediction confidence scores (decreasing order).
+        ## predictor.predict_torch doesn't seem to work as well as predictor.predict
+        mask, _, _ = predictor.predict\
+        (
+            point_coords = None,
+            point_labels = None,
+            box = bbox_coordinates,
+            multimask_output = False,
+        )
 
+        masks.append(mask[0])
+
+    mask = np.zeros(masks[0].shape)
+    for mask_ in masks:
+        mask = np.logical_or(mask, mask_)
+
+    mask = mask.astype(np.uint8)
+
+    return mask

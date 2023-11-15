@@ -13,7 +13,7 @@ from pdb import set_trace as pause
 class SegmData:
     '''
         Description:
-            Segmentation data for smoke class. Labels are images.
+            Segmentation data for smoke class. Labels are mask images.
     '''
 
     def __init__(self, dataset_dp):
@@ -111,8 +111,7 @@ class DetData:
     '''
 
     def __init__(self, dataset_dp, processed_dataset_dp = None, multiple_instances = False):
-        self.pause_ = False #debug
-
+        self.pause_ = False
 
         self.class_idcs = {'smoke': 0, 'fire': 1}
         self.classes = [None for class_idx in range(len(self.class_idcs))]
@@ -295,40 +294,28 @@ class DetData:
 
         return sorted(imgs_paths), sorted(bboxes_paths)
 
-    def get_one_det_instance_dfire(self, img_fp = None, bbox_fp = None, in_file_format = 'text', in_file_data_format = 'classcxcywh'):
+    def get_one_det_instance_dfire(self, img_fp: str = None, bboxes_fp: str = None) -> tuple[np.ndarray, list[list]]:
         '''
-            Acceptable combinations of (in_file_format, in_file_data_format):
-            ('text', 'classxminymaxyminymax')
-            ('json', 'classxminymaxyminymax')
+            Description:
+                Receives an image path and a JSON file that contains its bounding boxes in YOLO format and returns the respective objects.
+
+            Args:
+                img_fp. File path of the input image.
+                bbox
         '''
 
-        if in_file_format == 'text' and in_file_data_format == 'classcxcywh':
+        if img_fp == None or bboxes_fp == None:
+            img_fp = self.dataset_dp + 'train/images/' + 'WEB09440' + '.jpg'
+            bboxes_fp = self.dataset_dp + 'train/labels/' + 'WEB09440' + '.txt'
 
-            if img_fp == None or bbox_fp == None:
-                img_fp = self.dataset_dp + 'test/images/WEB11374.jpg'
-                bbox_fp = self.dataset_dp + 'test/labels/WEB11374.txt'
+        imgs_dfire = np.array(Image.open(img_fp).convert("RGB"))
 
-            print('in:', img_fp)
-            # if img_fp == '/media/fl0wxr/SU7_L1_MP/personal_data/msc_ai_sem1/ΠΥΟ/project_smoke_segmentation/datasets/D-Fire/test/images/WEB11374.jpg':
-            #     self.pause_ = True
-            if self.pause_:
-                pause()
-            imgs_dfire = [np.array(Image.open(img_fp))]
+        yolo_bboxes_dfire = self.get_yolo_bboxes(path = bboxes_fp)
 
-            yolo_bboxes_dfire = [self.get_yolo_bboxes(path = bbox_fp)]
+        norm_vertex_bboxes_dfire = self.yolo_bboxes_to_vertex_bboxes(yolo_bboxes = yolo_bboxes_dfire)
 
-            norm_vertex_bboxes_dfire = [self.yolo_bboxes_to_vertex_bboxes(yolo_bboxes = yolo_bboxes_dfire[0])]
+        norm_vertex_bboxes_dfire = self.label_drop_all_classes_except_first(norm_vertex_bboxes_dfire)
 
-            norm_vertex_bboxes_dfire = [self.label_drop_all_classes_except_first(norm_vertex_bboxes_dfire[0])]
+        vertex_bboxes_dfire = self.norm_bboxes_to_image_bboxes(img_shape = imgs_dfire.shape, norm_vertex_bboxes = norm_vertex_bboxes_dfire)
 
-            vertex_bboxes_dfire = [self.norm_bboxes_to_image_bboxes(img_shape = imgs_dfire[0].shape, norm_vertex_bboxes = norm_vertex_bboxes_dfire[0])]
-
-            return imgs_dfire[0], vertex_bboxes_dfire[0]
-
-        elif in_file_format == 'json' and in_file_data_format == 'classxminymaxyminymax':
-
-            with open(file = bbox_fp, mode = 'r') as json_file:
-                _ = json.load(json_file)
-                pause()
-
-            return -1
+        return imgs_dfire, vertex_bboxes_dfire

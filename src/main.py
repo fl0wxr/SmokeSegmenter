@@ -77,4 +77,4 @@ def convert_bboxes_to_segm_mask(json_fp = '../paths.json'):
 
 if __name__ == '__main__':
 
-    convert_bboxes_to_segm_mask()
+    one_convert_bboxes_to_segm_mask()
