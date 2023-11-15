@@ -1,10 +1,10 @@
-# Forest Smoke Segmentation
+# Smoke Segmentation
 
-The objective of this repository is to serve as a central reference point for accessible labeled data specifically tailored for the task of image smoke segmentation. In also provides tools for image data curation and a guide to automatically convert a large amount of image detection-based labels to image segmentation labels. All accompanied by concise documentation of the associated pipeline.
+The objective of this repository is to provide the means to create a large image dataset for the task of smoke segmentation. It also provides the associated tools for image data curation and a guide to automatically convert a large amount of image detection-based labels to image segmentation labels.
 
-### Next Updates
+### Upcoming Release Plans
 
-The repository will encompass the implementation of a proposed architecture for the segmenter, its training algorithm, a pre-trained segmenter for smoke image segmentation, as well as a demonstration of the process.
+`v0.7.0`: The repository will encompass the implementation of a proposed architecture for the segmenter, its training algorithm, a pre-trained segmenter for smoke image segmentation, as well as a demonstration of the process.
 
 ## Dataset
 
