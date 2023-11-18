@@ -36,7 +36,9 @@ Consisted of all D-Fire's images, with segmentation mask labels for the task of 
 
 ![](./fig0.jpg)
 
-#### Preparing to Convert D-Fire to S-Smoke
+#### Manual Conversion
+
+##### Preparing to Convert D-Fire to S-Smoke
 
 To replicate the steps involved for the generation of image labels, download and decompress the D-Fire dataset; with the following directory structure
 ```
@@ -66,7 +68,7 @@ python3 -m pip install git+https://github.com/facebookresearch/segment-anything.
 ```
 which is based on a pre-trained segmentation model called SAM. Now download SAM through [[link](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth)] and place it at the `./models` directory.
 
-#### Setting Up All Paths
+##### Setting Up All Paths
 
 It is assumed that the user has downloaded and decompressed the corresponding data files. The paths of the data's directory along with the SAM model's file path should be specified inside `./paths.json`.
 ```
@@ -76,7 +78,7 @@ It is assumed that the user has downloaded and decompressed the corresponding da
 }
 ```
 
-#### Conversion from D-Fire to S-Smoke
+##### Conversion from D-Fire to S-Smoke
 
 Inside `main.py`, set `CONVERT_BBOXES_TO_SEGMENTATION_MASKS` to `True`. Navigate in `./src` and apply
 ```
