@@ -1,6 +1,6 @@
 # Smoke Segmentation
 
-The objective of this repository is to provide the means to create a large image dataset for the task of smoke segmentation. It also provides the associated tools for image data curation and a guide to automatically convert a large amount of image detection-based labels to image segmentation labels.
+The objective of this repository is to provide the means to create a large image dataset for the task of smoke segmentation. It also provides the corresponding tools for image data curation and a guide to automatically convert a large amount of image detection-based labels to image segmentation labels.
 
 ### Upcoming Release Plans
 
