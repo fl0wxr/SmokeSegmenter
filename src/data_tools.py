@@ -7,8 +7,6 @@ import os
 
 import visuals
 
-from pdb import set_trace as pause
-
 
 class SegmData:
     '''
@@ -18,23 +16,94 @@ class SegmData:
 
     def __init__(self, dataset_dp):
 
-        self.class_idcs = {'background': 0, 'smoke': 1}
-        self.classes = [None for class_idx in range(len(self.class_idcs))]
+        self.raw_class_idcs = {'background': 0, 'smoke': 1}
+        self.classes = [None for class_idx in range(len(self.raw_class_idcs))]
         for class_idx in range(len(self.classes)):
-            for (key, value) in self.class_idcs.items():
+            for (key, value) in self.raw_class_idcs.items():
                 if value == class_idx:
                     self.classes[class_idx] = key
                     break
 
-        self.n_classes = len(self.class_idcs)
+        self.n_classes = len(self.raw_class_idcs)
         self.dataset_dp = dataset_dp
 
-    def preprocess_smoke5k(self, imgs: list[np.ndarray], masks: list[np.ndarray]) \
+        self.imgs_fps, self.masks_fps = self.generate_data_paths()
+        self.n_instances = len(self.imgs_fps)
+
+        self.INSTANCE_IDX = -1
+
+    def __next__(self):
+
+        self.INSTANCE_IDX += 1
+        if self.INSTANCE_IDX <= self.n_instances - 1:
+
+            print('Path index:', self.INSTANCE_IDX)
+
+            self.img_fp = self.imgs_fps[self.INSTANCE_IDX]
+            self.mask_fp = self.masks_fps[self.INSTANCE_IDX]
+
+            assert self.img_fp.split('/')[-1].split('.')[-2] == self.mask_fp.split('/')[-1].split('.')[-2], 'E: Image bounding box file name pair incompatibility'
+
+            self.img, self.mask = self.get_one_segm_instance_ssmoke_dp(img_fp = self.img_fp, mask_fp = self.mask_fp)
+
+            self.n_smoke_pixels = np.sum(self.mask == self.raw_class_idcs['smoke'])
+
+            self.instance_name = self.mask_fp.split('/')[-1].split('.')[-2]
+
+            return True
+
+        else:
+
+            return False
+
+    def generate_data_paths(self) -> (tuple[str], tuple[str]):
+        '''
+            Returns:
+                A tuple of 2 values where the first is
+                    proper_imgs_paths. All image paths that correspond to a mask path.
+                and the second is
+                    proper_masks_paths. Each position of this tuple corresponds to the same indice's position inside proper_imgs_paths.
+        '''
+
+        imgs_paths = glob\
+        (
+            pathname = self.dataset_dp + 'train/images/**/*.jpg',
+            recursive = True
+        ) + \
+        glob\
+        (
+            pathname = self.dataset_dp + 'test/images/**/*.jpg',
+            recursive = True
+        )
+
+        masks_paths = glob\
+        (
+            pathname = self.dataset_dp + 'train/seg_labels/**/*.png',
+            recursive = True
+        ) + \
+        glob\
+        (
+            pathname = self.dataset_dp + 'test/seg_labels/**/*.png',
+            recursive = True
+        )
+
+        imgs_paths = sorted(imgs_paths)
+        masks_paths = sorted(masks_paths)
+        instance_pair_paths = {}
+        for img_path in imgs_paths:
+            for mask_path in masks_paths:
+                img_filename = img_path.split('/')[-1].split('.')[-2]
+                mask_filename = mask_path.split('/')[-1].split('.')[-2]
+                if img_filename == mask_filename:
+                    instance_pair_paths[img_path] = mask_path
+
+        return tuple(instance_pair_paths.keys()), tuple(instance_pair_paths.values())
+
+    def preprocess_smoke5k(self, img: np.ndarray, masks: list[np.ndarray]) \
         -> tuple[list[np.ndarray], list[np.ndarray]]:
         '''
             Args:
-                imgs. Size N.
-                    imgs[i]. Shape (H, W, C).
+                imgs. Shape (H, W, C).
                 masks. Size N.
                     masks[i]. Shape (H, W, C).
         '''
@@ -42,67 +111,77 @@ class SegmData:
         for i in range(len(masks)):
             masks[i] = masks[i] // np.max(masks[i])
 
-        return imgs, masks
+        return img, masks
 
-    def instance_pair_integrity_check_raw(self, imgs: list[np.ndarray], masks: list[np.ndarray]):
+    def instance_pair_integrity_check_raw(self, img: np.ndarray, mask: list[np.ndarray]):
         '''
             Description:
                 Used right after the data parsing.
 
             Args:
-                imgs. Size N.
-                    imgs[i]. Shape (H, W, C).
-                masks. Size N.
-                    masks[i]. Shape (H, W, C).
+                img. Shape (H, W, C).
+                mask. Shape (H, W, C).
         '''
 
         ## Lengths
-        assert len(imgs) == len(masks), 'E: Inconsistency in number of instances.'
-        for img, mask in zip(imgs, masks):
-            assert img.shape[:-1] == mask.shape, 'E: Image and mask arrays do not share the same shape.'
+        assert img.shape[:-1] == mask.shape, 'E: Image and mask arrays do not share the same shape.'
 
-    def instance_pair_integrity_check_preprocessed(self, imgs: list[np.ndarray], masks: list[np.ndarray], class_idcs: dict):
+    def instance_pair_integrity_check_preprocessed(self, img: np.ndarray, mask: list[np.ndarray], raw_class_idcs: dict):
         '''
             Description:
                 Used right after the initial preprocessing of data.
 
             Args:
-                imgs. Size N.
-                    imgs[i]. Shape (H, W, C).
-                masks. Size N.
-                    masks[i]. Shape (H, W, C).
-                class_idcs. Size `n_classes`.
+                img. Shape (H, W, C).
+                mask. Shape (H, W, C).
+                raw_class_idcs. Size `n_classes`.
         '''
 
-        class_idcs_value_set = {val for val in class_idcs.values()}
+        raw_class_idcs_value_set = {val for val in raw_class_idcs.values()}
 
-        ## Outer length
-        assert len(imgs) == len(masks), 'E: Inconsistency in number of instances.'
-        for img, mask in zip(imgs, masks):
+        ## Inner lengths
+        assert img.shape[:-1] == mask.shape, 'E: Image and mask arrays do not share the same shape.'
 
-            ## Inner lengths
-            assert img.shape[:-1] == mask.shape, 'E: Image and mask arrays do not share the same shape.'
+        ## Data type
+        assert type(img.flat[0]) == np.uint8, 'E: Image array data type is not np.uint8.'
+        assert type(mask.flat[0]) == np.uint8, 'E: Image array data type is not np.uint8.'
 
-            ## Data type
-            assert type(img.flat[0]) == np.uint8, 'E: Image array data type is not np.uint8.'
-            assert type(mask.flat[0]) == np.uint8, 'E: Image array data type is not np.uint8.'
-
-            ## Mask
-            masks_range = set(np.unique(masks).tolist())
-            assert masks_range == class_idcs_value_set, 'E: Mask range and class indices are inconsistent.'
+        ## Mask
+        mask_range = set(np.unique(mask).tolist())
+        assert 0 in mask_range and mask_range.issubset(raw_class_idcs_value_set), 'E: Mask range and class indices are inconsistent.'
 
     def get_one_segm_instance_smoke5k_dp(self):
 
-        imgs_smoke5k = [np.array(Image.open(self.dataset_dp + 'SMOKE5K/train/img/1_23.jpg'))]
+        img_smoke5k = np.array(Image.open(self.dataset_dp + 'SMOKE5K/train/img/1_23.jpg'))
 
         ## 0 -> Background, 255 -> Smoke. Assumes that multiple values can be taken for multiple classes.
-        masks_smoke5k = [np.array(Image.open(self.dataset_dp + 'SMOKE5K/train/gt/1_23.png'))]
+        mask_smoke5k = np.array(Image.open(self.dataset_dp + 'SMOKE5K/train/gt/1_23.png'))
 
-        self.instance_pair_integrity_check_raw(imgs = imgs_smoke5k, masks = masks_smoke5k)
-        imgs_smoke5k, masks_smoke5k = self.preprocess_smoke5k(imgs = imgs_smoke5k, masks = masks_smoke5k)
-        self.instance_pair_integrity_check_preprocessed(imgs = imgs_smoke5k, masks = masks_smoke5k, class_idcs = self.class_idcs)
+        self.instance_pair_integrity_check_raw(img = img_smoke5k, mask = mask_smoke5k)
+        img_smoke5k, mask_smoke5k = self.preprocess_smoke5k(img = img_smoke5k, mask = mask_smoke5k)
+        self.instance_pair_integrity_check_preprocessed(img = img_smoke5k, mask = mask_smoke5k, raw_class_idcs = self.raw_class_idcs)
 
-        return imgs_smoke5k[0], masks_smoke5k[0]
+        return img_smoke5k, mask_smoke5k
+
+    def get_one_segm_instance_ssmoke_dp(self, img_fp: str = None, mask_fp: str = None):
+
+        if img_fp == None or mask_fp == None:
+            img_fp = self.dataset_dp + 'train/images/' + 'WEB09440' + '.jpg'
+            mask_fp = self.dataset_dp + 'train/det_labels/' + 'WEB09440' + '.txt'
+
+        ## ! Parse: Begin
+
+        img_ssmoke = np.array(Image.open(img_fp))
+
+        ## 0 -> Background, 1 -> Smoke. Assumes that multiple values can be taken for multiple classes.
+        mask_ssmoke = np.array(Image.open(mask_fp))
+
+        ## ! Parse: End
+
+        self.instance_pair_integrity_check_raw(img = img_ssmoke, mask = mask_ssmoke)
+        self.instance_pair_integrity_check_preprocessed(img = img_ssmoke, mask = mask_ssmoke, raw_class_idcs = self.raw_class_idcs)
+
+        return img_ssmoke, mask_ssmoke
 
 class DetData:
     '''
@@ -112,15 +191,15 @@ class DetData:
 
     def __init__(self, dataset_dp):
 
-        self.class_idcs = {'smoke': 0, 'fire': 1}
-        self.classes = [None for class_idx in range(len(self.class_idcs))]
+        self.raw_class_idcs = {'smoke': 0, 'fire': 1}
+        self.classes = [None for class_idx in range(len(self.raw_class_idcs))]
         for class_idx in range(len(self.classes)):
-            for (key, value) in self.class_idcs.items():
+            for (key, value) in self.raw_class_idcs.items():
                 if value == class_idx:
                     self.classes[class_idx] = key
                     break
 
-        self.n_classes = len(self.class_idcs)
+        self.n_classes = len(self.raw_class_idcs)
         self.dataset_dp = dataset_dp
 
         self.imgs_fps, self.bboxes_fps = self.generate_data_paths()
@@ -130,7 +209,7 @@ class DetData:
         inp = print('If already generated output label files are found, how should they be handled?\n[I] Ignore files\n[O] Overwrite files with newly processed ones\n> I'); inp = 'I'
         while inp not in overwrite_choices.keys():
             inp = input('Select a valid input:\n> ')
-        print('Proceeding with:\n%s\n\n---'%overwrite_choices[inp])
+        print('Proceeding with:\n%s\n---\n'%overwrite_choices[inp])
         self.overwrite_switch = inp == 'O'
 
         self.INSTANCE_IDX = -1
@@ -138,16 +217,16 @@ class DetData:
     def __next__(self):
 
         self.INSTANCE_IDX += 1
-        if self.INSTANCE_IDX <= 2:#self.n_instances - 1:
-
-            print('List index:', self.INSTANCE_IDX)
+        if self.INSTANCE_IDX <= 5: #<= self.n_instances - 1:
+            print('Debugging 0x4ec472765a: Adjust previous line')
+            print('Path index:', self.INSTANCE_IDX)
 
             img_fp = self.imgs_fps[self.INSTANCE_IDX]
             bboxes_fp = self.bboxes_fps[self.INSTANCE_IDX]
 
             assert img_fp.split('/')[-1].split('.')[-2] == bboxes_fp.split('/')[-1].split('.')[-2], 'E: Image bounding box file name pair incompatibility'
 
-            self.img, self.bboxes = self.get_one_det_instance_ssmoke(img_fp = img_fp, bboxes_fps = bboxes_fp)
+            self.img, self.bboxes = self.get_one_det_instance_ssmoke(img_fp = img_fp, bboxes_fp = bboxes_fp)
             self.mask_fp = '/'.join(self.bboxes_fps[self.INSTANCE_IDX].split('/')[:-2] + ['seg_labels/']) + '.'.join((self.bboxes_fps[self.INSTANCE_IDX].split('/')[-1]).split('.')[:-1] + ['png'])
 
             return True
@@ -156,17 +235,38 @@ class DetData:
 
             return False
 
-    def save_segm_labels(self, mask: np.ndarray):
+    def generate_data_paths(self):
 
-        if self.overwrite_switch:
-            print('W: Duplicate file will be overwritten')
-        else:
-            print('Ignoring\n%s\n---'%(self.mask_fp), end = 2 * '\n')
-            next(self)
+        imgs_paths = glob\
+        (
+            pathname = self.dataset_dp + 'train/images/**/*.jpg',
+            recursive = True
+        ) + \
+        glob\
+        (
+            pathname = self.dataset_dp + 'test/images/**/*.jpg',
+            recursive = True
+        )
+
+        bboxes_paths = glob\
+        (
+            pathname = self.dataset_dp + 'train/det_labels/**/*.txt',
+            recursive = True
+        ) + \
+        glob\
+        (
+            pathname = self.dataset_dp + 'test/det_labels/**/*.txt',
+            recursive = True
+        )
+
+        return sorted(imgs_paths), sorted(bboxes_paths)
+
+    def save_segm_labels(self, mask: np.ndarray):
 
         mask_ = Image.fromarray(mask)
         mask_.save(self.mask_fp)
-        print('Mask saved at\n%s'%(self.mask_fp))
+
+        return True
 
     def get_yolo_bboxes(self, path: str) -> list[list]:
         '''
@@ -201,7 +301,7 @@ class DetData:
                 print('W: Invalid coordinates.')
             else:
                 yolo_bboxes.append(yolo_bbox)
-            assert yolo_bbox[0] in self.class_idcs.values(), 'E: Invalid class label index'
+            assert yolo_bbox[0] in self.raw_class_idcs.values(), 'E: Invalid class label index'
 
         return yolo_bboxes
 
@@ -267,54 +367,23 @@ class DetData:
 
         return norm_vertex_bboxes_filtered
 
-    def generate_data_paths(self):
-
-        imgs_paths = glob\
-        (
-            pathname = self.dataset_dp + 'train/images/**/*.jpg',
-            recursive = True
-        ) + \
-        glob\
-        (
-            pathname = self.dataset_dp + 'test/images/**/*.jpg',
-            recursive = True
-        )
-
-        bboxes_paths = glob\
-        (
-            pathname = self.dataset_dp + 'train/det_labels/**/*.txt',
-            recursive = True
-        ) + \
-        glob\
-        (
-            pathname = self.dataset_dp + 'test/det_labels/**/*.txt',
-            recursive = True
-        )
-
-        return sorted(imgs_paths), sorted(bboxes_paths)
-
-    def get_one_det_instance_ssmoke(self, img_fp: str = None, bboxes_fps: str = None) -> tuple[np.ndarray, list[list]]:
+    def get_one_det_instance_ssmoke(self, img_fp: str = None, bboxes_fp: str = None) -> tuple[np.ndarray, list[list]]:
         '''
             Description:
                 Receives an image path and a JSON file that contains its bounding boxes in YOLO format and returns the respective objects.
-
-            Args:
-                img_fp. File path of the input image.
-                bbox
         '''
 
-        if img_fp == None or bboxes_fps == None:
+        if img_fp == None or bboxes_fp == None:
             img_fp = self.dataset_dp + 'train/images/' + 'WEB09440' + '.jpg'
-            bboxes_fps = self.dataset_dp + 'train/det_labels/' + 'WEB09440' + '.txt'
+            bboxes_fp = self.dataset_dp + 'train/det_labels/' + 'WEB09440' + '.txt'
 
-        imgs_ssmoke = np.array(Image.open(img_fp).convert("RGB"))
+        ## Parse data
+        img_ssmoke = np.array(Image.open(img_fp).convert("RGB"))
+        yolo_bboxes_ssmoke = self.get_yolo_bboxes(path = bboxes_fp)
 
-        yolo_bboxes_ssmoke = self.get_yolo_bboxes(path = bboxes_fps)
-
+        ## Preprocess
         norm_vertex_bboxes_ssmoke = self.yolo_bboxes_to_vertex_bboxes(yolo_bboxes = yolo_bboxes_ssmoke)
-
         norm_vertex_bboxes_ssmoke = self.label_drop_all_classes_except_first(norm_vertex_bboxes_ssmoke)
+        vertex_bboxes_ssmoke = self.norm_bboxes_to_image_bboxes(img_shape = img_ssmoke.shape, norm_vertex_bboxes = norm_vertex_bboxes_ssmoke)
 
-        vertex_bboxes_ssmoke = self.norm_bboxes_to_image_bboxes(img_shape = imgs_ssmoke.shape, norm_vertex_bboxes = norm_vertex_bboxes_ssmoke)
-
-        return imgs_ssmoke, vertex_bboxes_ssmoke
+        return img_ssmoke, vertex_bboxes_ssmoke

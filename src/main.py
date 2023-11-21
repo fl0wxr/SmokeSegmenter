@@ -2,8 +2,9 @@ import visuals
 import data_tools
 import bbox2segm_mask
 import json
-
-from pdb import set_trace as pause
+import os
+import time
+import numpy as np
 
 
 def one_segm_instance(paths_fp = '../paths.json'):
@@ -59,23 +60,55 @@ def one_convert_bboxes_to_segm_mask(paths_fp = '../paths.json'):
 
 def convert_bboxes_to_segm_mask(paths_fp = '../paths.json'):
 
+    import torch
+
+    def DetectNSave():
+        print('Number of bounding boxes: %d'%(len(data.bboxes)))
+        mask = bbox2segm_mask.bbox2segm_mask(img = data.img, bboxes = data.bboxes, sam_fp = sam_fp, DEVICE = DEVICE)
+        data.save_segm_labels(mask = mask)
+        print('Action: Mask saved at\n%s'%(data.mask_fp))
+
+    DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
+    t_total_conversion_init = time.time()
+    delta_t_iter_list = []
+
     with open(file = paths_fp, mode = 'r') as json_file:
         paths_json = json.load(json_file)
 
     dataset_dp = paths_json['ssmoke_data_dp']
     if dataset_dp[-1] != '/': dataset_dp += '/'
-
     sam_fp = paths_json['sam_fp']
 
     data = data_tools.DetData(dataset_dp = dataset_dp)
     while next(data):
-        print('W: Debugging mode is on')
-        mask = bbox2segm_mask.bbox2segm_mask(img = data.img, bboxes = data.bboxes, sam_fp = sam_fp)
-        data.save_segm_labels(mask = mask)
-        print('Completion status: %.2f%%'%(100*(data.INSTANCE_IDX+1)/(2+1)))
+
+        t_iter_i = time.time()
+
+        if os.path.isfile(data.mask_fp):
+            print('W: Mask file already exists')
+            if data.overwrite_switch:
+                print('W: Overwritting file')
+                DetectNSave()
+            else:
+                print('W: Ignoring instance\n%s'%(data.mask_fp))
+        else:
+            DetectNSave()
+
+        delta_t_iter = time.time() - t_iter_i
+        delta_t_iter_list.append(delta_t_iter)
+
+        print('Instance conversion period: %.2f s'%(delta_t_iter))
+        print('Completion status: %.2f%%'%(100*(data.INSTANCE_IDX+1)/data.n_instances))
         print('---', end = 2 * '\n')
 
-    print('Operation completed')
+    delta_t_total_conversion = time.time() - t_total_conversion_init
+
+    delta_t_iter_list = np.array(delta_t_iter_list)
+
+    print('\nOperation completed\n')
+    print('Conversion per image\navg: %.2f s\nmax: %.2f s\nmin: %.2f s'%(np.mean(delta_t_iter_list), np.max(delta_t_iter_list), np.min(delta_t_iter_list)))
+    print('\nTotal conversion period: %.1f s'%(delta_t_total_conversion))
 
 
 if __name__ == '__main__':

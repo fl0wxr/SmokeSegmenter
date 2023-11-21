@@ -32,7 +32,7 @@ D-Fire [[link](https://github.com/gaiasd/DFireDataset)] is an image dataset of f
 
 ### S-Smoke
 
-Consisted of all D-Fire's images, with segmentation mask labels for the task of image smoke segmentation. The ground truth labels were generated from a pre-trained SAM model, guided by the bounding box labels of the D-Fire dataset.
+S-Smoke is a dataset consisted of all D-Fire's images, with segmentation mask labels for the task of image smoke segmentation. The ground truth labels were generated from a pre-trained SAM model, guided by the bounding box labels of the D-Fire dataset.
 
 ![](./fig0.jpg)
 
