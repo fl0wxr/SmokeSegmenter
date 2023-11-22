@@ -1,0 +1,6 @@
+matplotlib>=3.8.0
+numpy>=1.26.2
+opencv_python>=4.8.1.78
+Pillow>=10.1.0
+segment_anything>=1.0
+torch>=2.1.0
