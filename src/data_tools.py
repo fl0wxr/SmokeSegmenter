@@ -217,8 +217,8 @@ class DetData:
     def __next__(self):
 
         self.INSTANCE_IDX += 1
-        if self.INSTANCE_IDX <= 5: #<= self.n_instances - 1:
-            print('Debugging 0x4ec472765a: Adjust previous line')
+        if self.INSTANCE_IDX <= self.n_instances - 1:
+            # print('Debugging 0x4ec472765a: Adjust previous line')
             print('Path index:', self.INSTANCE_IDX)
 
             img_fp = self.imgs_fps[self.INSTANCE_IDX]
