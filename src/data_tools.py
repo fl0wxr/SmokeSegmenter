@@ -94,8 +94,8 @@ class SegmData:
         print('Matching all instance pair (image & mask) paths\nThis may take a while')
         for img_path in imgs_paths:
             for mask_path in masks_paths:
-                img_filename = re.split('/|\.', img_path)[-2]
-                mask_filename = re.split('/|\.', mask_path)[-2]
+                img_filename = img_path.split('/')[-1].split('.')[-2]
+                mask_filename = mask_path.split('/')[-1].split('.')[-2]
                 if img_filename == mask_filename:
                     instance_pair_paths[img_path] = mask_path
 
