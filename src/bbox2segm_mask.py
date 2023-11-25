@@ -18,7 +18,8 @@ def bbox2segm_mask(img: np.ndarray, bboxes: list[list], sam_fp: str, DEVICE) -> 
 
     if len(bboxes) == 0: return np.zeros(img.shape[:-1], dtype = np.uint8)
 
-    sam = sam_model_registry['default'](checkpoint = sam_fp)
+    ## Change to 'vit_h' instead of 'vit_l' if you use the default model
+    sam = sam_model_registry['vit_l'](checkpoint = sam_fp)
     sam.to(device = DEVICE)
     predictor = SamPredictor(sam)
 

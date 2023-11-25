@@ -113,7 +113,7 @@ def convert_bboxes_to_segm_mask(paths_fp = '../paths.json'):
 
 if __name__ == '__main__':
 
-    CONVERT_BBOXES_TO_SEGMENTATION_MASKS = True
+    CONVERT_BBOXES_TO_SEGMENTATION_MASKS = False
 
     if CONVERT_BBOXES_TO_SEGMENTATION_MASKS:
         convert_bboxes_to_segm_mask()

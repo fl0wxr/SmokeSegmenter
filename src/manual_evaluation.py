@@ -243,18 +243,18 @@ class manual_evaluation_ui:
 
 def manual_evaluation_sequence(BLACKLIST_FP = '../blacklisted_instances.list', paths_fp = '../paths.json'):
 
-    def checkpoint(mask_fp):
+    def session(mask_fp):
 
-        with open(checkpoint_fp, 'w') as file:
+        with open(session_fp, 'w') as file:
             file.write(mask_fp)
 
     with open(file = paths_fp, mode = 'r') as json_file:
         paths_json = json.load(json_file)
 
-    checkpoint_fp = '../checkpoint.path'
+    session_fp = '../session.path'
 
-    if os.path.isfile(checkpoint_fp):
-        print('W: Previous checkpoint found')
+    if os.path.isfile(session_fp):
+        print('W: Previous session found')
         start_over_trigger = input('Start over? Yes [Y] or No [N]\n> ')
         while start_over_trigger not in {'Y', 'N'}:
             start_over_trigger = input('Enter a proper answer\n> ')
@@ -262,16 +262,16 @@ def manual_evaluation_sequence(BLACKLIST_FP = '../blacklisted_instances.list', p
         if start_over_trigger:
             if os.path.isfile(BLACKLIST_FP):
                 os.remove(BLACKLIST_FP)
-            os.remove(checkpoint_fp)
+            os.remove(session_fp)
 
-    if os.path.isfile(checkpoint_fp):
-        print('Loading previous checkpoint')
-        with open(checkpoint_fp, 'r') as file:
-            mask_checkpoint_fp = file.read()
-        load_checkpoint_trigger = True
+    if os.path.isfile(session_fp):
+        print('Loading previous session')
+        with open(session_fp, 'r') as file:
+            mask_session_fp = file.read()
+        load_session_trigger = True
     else:
-        print('Starting over')
-        load_checkpoint_trigger = False
+        print('Creating a new session')
+        load_session_trigger = False
 
     dataset_dp = paths_json['ssmoke_data_dp']
     if dataset_dp[-1] != '/': dataset_dp += '/'
@@ -290,9 +290,9 @@ def manual_evaluation_sequence(BLACKLIST_FP = '../blacklisted_instances.list', p
         n_smoke_pixels = data.n_smoke_pixels
         contains_smoke = 'Positive' if n_smoke_pixels > 0 else 'Negative'
 
-        if load_checkpoint_trigger:
-            if mask_fp == mask_checkpoint_fp:
-                load_checkpoint_trigger = False
+        if load_session_trigger:
+            if mask_fp == mask_session_fp:
+                load_session_trigger = False
             else:
                 continue
 
@@ -300,7 +300,7 @@ def manual_evaluation_sequence(BLACKLIST_FP = '../blacklisted_instances.list', p
 
         ui.build(img = img, mask = mask, combined = combined, res = res, img_fp = img_fp, mask_fp = mask_fp, n_smoke_pixels = n_smoke_pixels, contains_smoke = contains_smoke)
 
-        checkpoint(mask_fp = mask_fp)
+        session(mask_fp = mask_fp)
 
 
 if __name__ == '__main__':
