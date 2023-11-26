@@ -91,11 +91,18 @@ class SegmData:
         imgs_paths = sorted(imgs_paths)
         masks_paths = sorted(masks_paths)
         instance_pair_paths = {}
-        print('Matching all instance pair (image & mask) paths\nThis may take a while')
+        print('Matching all instance pair (image & mask) paths')
+
+        imgs_filenames = []
         for img_path in imgs_paths:
-            for mask_path in masks_paths:
-                img_filename = img_path.split('/')[-1].split('.')[-2]
-                mask_filename = mask_path.split('/')[-1].split('.')[-2]
+            imgs_filenames.append(img_path.split('/')[-1].split('.')[-2])
+
+        masks_filenames = []
+        for mask_path in masks_paths:
+            masks_filenames.append(mask_path.split('/')[-1].split('.')[-2])
+
+        for img_filename, img_path in zip(imgs_filenames, imgs_paths):
+            for mask_filename, mask_path in zip(masks_filenames, masks_paths):
                 if img_filename == mask_filename:
                     instance_pair_paths[img_path] = mask_path
 

@@ -32,7 +32,7 @@ class manual_evaluation_ui:
         # Set the window size and position
         self.window.geometry(f"{self.window_width}x{self.window_height}+{self.x_position}+{self.y_position}")
 
-    def build(self, img, mask, combined, res, img_fp, mask_fp, n_smoke_pixels, contains_smoke):
+    def build(self, img, mask, combined, res, img_fp, mask_fp, n_smoke_pixels, contains_smoke, completion_status):
 
         def top_text():
 
@@ -55,7 +55,7 @@ class manual_evaluation_ui:
             text_frame = tk.Frame(self.window, width = text_frame_width, height = text_frame_height, bg = 'white')
             text_frame.place(x = left_margin, y = 90)
 
-            text_label = tk.Label(text_frame, text = 'Resolution: %dx%d\nContains Smoke: %s\nNumber of smoke px:\n%d'%(res[1], res[0], contains_smoke, n_smoke_pixels), wraplength = text_frame_width, anchor = 'w', justify = 'left')
+            text_label = tk.Label(text_frame, text = 'Resolution: %dx%d\nContains Smoke: %s\nNumber of smoke px:\n%d\nStatus: %.2f%%'%(res[1], res[0], contains_smoke, n_smoke_pixels, completion_status), wraplength = text_frame_width, anchor = 'w', justify = 'left')
             text_label.pack()
 
         def upper_button():
@@ -85,7 +85,7 @@ class manual_evaluation_ui:
         def Add2Blacklist():
 
             with open(self.BLACKLIST_FP, mode = 'a') as file:
-                file.write(mask_fp + '\n')
+                file.write(img_fp + ', ' + mask_fp + '\n')
 
             Next()
 
@@ -243,7 +243,7 @@ class manual_evaluation_ui:
 
 def manual_evaluation_sequence(BLACKLIST_FP = '../blacklisted_instances.list', paths_fp = '../paths.json'):
 
-    def session(mask_fp):
+    def session_save(mask_fp):
 
         with open(session_fp, 'w') as file:
             file.write(mask_fp)
@@ -298,11 +298,16 @@ def manual_evaluation_sequence(BLACKLIST_FP = '../blacklisted_instances.list', p
 
         combined = visuals.combine_img_mask(img = img, mask = mask)
 
-        ui.build(img = img, mask = mask, combined = combined, res = res, img_fp = img_fp, mask_fp = mask_fp, n_smoke_pixels = n_smoke_pixels, contains_smoke = contains_smoke)
+        completion_status = 100*(data.INSTANCE_IDX+1)/data.n_instances
 
-        session(mask_fp = mask_fp)
+        ui.build(img = img, mask = mask, combined = combined, res = res, img_fp = img_fp, mask_fp = mask_fp, n_smoke_pixels = n_smoke_pixels, contains_smoke = contains_smoke, completion_status = completion_status)
+
+        print('Completion status: %.2f%%'%(completion_status))
+
+        session_save(mask_fp = mask_fp)
 
 
 if __name__ == '__main__':
 
     manual_evaluation_sequence()
+
