@@ -88,8 +88,9 @@ class SegmData:
             recursive = True
         )
 
-        imgs_paths = sorted(imgs_paths)
-        masks_paths = sorted(masks_paths)
+        imgs_paths = sorted(imgs_paths, reverse = True)
+        masks_paths = sorted(masks_paths, reverse = True)
+
         instance_pair_paths = {}
         print('Matching all instance pair (image & mask) paths')
 
