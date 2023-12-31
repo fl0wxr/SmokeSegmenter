@@ -1,0 +1,6 @@
+{
+    "dfire_data_dp": "../../../datasets/D-Fire",
+    "sam_fp": "../../../models/sam/sam_vit_l_0b3195.pth",
+    "raw_ssmoke_data_dp": "../../../datasets/S-Smoke/raw",
+    "curated_ssmoke_data_dp": "../../../datasets/S-Smoke/curated"
+}

@@ -1,138 +1,79 @@
-# Smoke Segmentation
+# Smoke Segmentation Project
 
-The objective of this repository is to provide the means to create a large image dataset for the task of smoke segmentation. It also provides the corresponding tools (including a segmentation UI) for image data curation and a guide to automatically convert a large amount of image detection-based labels to image segmentation labels.
+The objective of this repository is to provide the means to create a large image dataset for the task of smoke segmentation. It also provides the corresponding tools (including a segmentation UI) for image data curation and a guide to automatically convert a large amount of image detection-based labels to image segmentation labels. It also encompass the implementation of a proposed architecture for a segmenter, its training configuration, a pre-trained segmenter for smoke image segmentation.
 
-### Upcoming Release Plans
-
-`v0.7.0+`: The repository will encompass the implementation of a proposed architecture for a segmenter, its training configuration, a pre-trained segmenter for smoke image segmentation, as well as an attempt to improve its performance-FLOPS ratio.
-
-## Dataset
-
-### External Dataset
-
-#### D-Fire
+## D-Fire - External Dataset
 
 D-Fire [[link](https://github.com/gaiasd/DFireDataset)] is an image dataset of fire and smoke occurrences designed for machine learning and object detection algorithms with more than 21,000 images. The bounding box labels are stored inside `.txt` files in YOLO format (class + cxcywh).
 
-### Project Directory
-
-```
-.
-├── fig0.jpg
-├── LICENSE
-├── models
-├── paths.json [Developer must create this]
-├── README.md
-└── src
-    ├── bbox2segm_mask.py
-    ├── data_tools.py
-    ├── drop_blacklisted_files.py
-    ├── main.py
-    ├── manual_evaluation.py
-    └── visuals.py
-```
-
-### S-Smoke
+## S-Smoke
 
 S-Smoke is a dataset consisted of all D-Fire's images, with segmentation mask labels for the task of image smoke segmentation. The ground truth labels were generated from a pre-trained SAM model, guided by the bounding box labels of the D-Fire dataset.
 
-![](./fig0.jpg)
+## Data Directory Structure
 
-#### Directory
-
+This is the data's directory structure, located in `./datasets`.
 ```
-S-Smoke
-├── test
-|   ├── images
-|   └── segm_labels
-└── train
-    ├── images
-    └── segm_labels
+datasets
+├── config_new
+|   └── gen_ssmoke_path_lists.py
+├── D-Fire
+|   ├── test
+|   |   ├── images
+|   |   └── det_labels
+|   └── train
+|       ├── images
+|       └── det_labels
+└── S-Smoke
+    ├── curated
+    |   ├── test
+    |   |   ├── images
+    |   |   ├── seg_labels
+    |   |   └── combined
+    |   └── train
+    └── raw
+        ├── test
+        |   ├── images
+        |   ├── seg_labels
+        |   └── combined
+        └── train
 ```
 
-#### Manual Conversion
+## Preparation
 
-##### Preparing to Convert D-Fire to S-Smoke
+### Directory Structure
 
-To replicate the steps involved for the generation of image labels, download and decompress the D-Fire dataset; with the following directory structure
-```
-D-Fire
-├── test
-|   ├── labels
-|   └── images
-└── train
-    ├── labels
-    └── images
-```
-To align the paths with the currently provided scripts, you should rename the directories with names `labels` to `det_labels`. Additionally add two directories inside `test` and `train` respectively, both with names `segm_labels`. After the proper application of the preceding instructions, the resulting dataset's structure will look exactly like this
+<u>The developer has to manually create the preceeding directory structure prior to using any of the provided tools.</u> The D-Fire directory has to be filled with the corresponding files from the dataset. D-Fire's labels and images are expected to be in text and JPG file formats, and be named with the corresponding `.txt` and `.jpg` file extensions. Download and decompress the D-Fire dataset.
+
+This is what the decompressed D-Fire directory will look like initially:
 ```
 D-Fire
 ├── test
 |   ├── det_labels
-|   ├── images
-|   └── segm_labels
+|   └── images
 └── train
     ├── det_labels
-    ├── images
-    └── segm_labels
+    └── images
 ```
-Install `segment-anything` [[link](https://github.com/facebookresearch/segment-anything)] through
+To align the paths with the currently provided scripts, you should rename the directories with names `labels` to `det_labels`.
+
+Now download a pretrained SAM model through [[link](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth)] and place it inside `./models` directory.
+
+### Dependencies
+
+Apply
 ```
-python3 -m pip install git+https://github.com/facebookresearch/segment-anything.git
+sudo apt-get install ninja-build
 ```
-which is based on a pre-trained segmentation model called SAM. Now download SAM through [[link](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth)] and place it at the `./models` directory.
-
-##### Setting Up All Paths
-
-It is assumed that the user has downloaded and decompressed the corresponding data files. The paths of the data's directory along with the SAM model's file path should be specified inside `./paths.json`.
 ```
-{
-    "ssmoke_data_dp": "<INSERT D-FIRE DATASET DIRECTORY (e.g. ~/Downloads/D-Fire)>",
-    "sam_fp": "<SAM MODEL FILE PATH (e.g. ../models/sam_vit_h_4b8939.pt)>"
-}
+python3 -m pip install -r requirements.txt
 ```
-
-##### Conversion from D-Fire to S-Smoke
-
-Inside `main.py`, set `CONVERT_BBOXES_TO_SEGMENTATION_MASKS` to `True`. Navigate in `./src` and apply
-```
-python3 main.py
-```
-This process will potentially take at least one day to complete.
-
-##### Manual Evaluation
-
-The evaluation of SAM's segmentation masks may yield several instances of disappointment. To facilitate this evaluation process, an executable file, `./src/manual_evaluation.py`, has been provided to the data curator. This tool assists in visually inspecting each individual predicted mask.
-
-Upon execution, the user is presented with a user interface (UI) that aids in assessing the accuracy of predictions iteratively. The UI consists of three images:
-
-- The top-left image displays the input image.
-- The bottom-left image showcases the predicted mask, portraying white pixels for the foreground (smoke).
-- The image on the right combines the input image and the predicted mask for easier comparison.
-
-Located at the lower-left corner are two buttons:
-
-- Next [N]: Allows skipping an image if the prediction appears satisfactory. Keyboard shortcut -> **N**
-- Add to Blacklist [B]: Provides an option to flag unsatisfactory predictions for further analysis or action. Each time the user triggers this, the paths of the unsatisfactory image and its corresponding mask are added in `./blacklisted_instances.list` separated by `", "`. Keyboard shortcut -> **B**
-
-The user can also quit/interrupt the process by pressing **Q** (the session is saved).
-
-This interface empowers the user to make intuitive judgments regarding the *accuracy* of the predicted masks, offering a straightforward means to manage and evaluate the predictions generated by the system.
-
-![](./fig1.png)
-
-### Blacklist
-
-You can also delete all blacklisted files, through the executable `drop_blacklisted_files.py`. It is recommended to first manually backup your dataset.
-
-## Segmentation Training
-
-The only images that are considered are the ones that correspond to some label file inside each corresponding `seg_labels` directory.
+Finally install [[Apex](https://github.com/nvidia/apex#installation)].
 
 ## Citation
+
+- ycszen. Image segmentation tools. [[TorchSeg](https://github.com/ycszen/TorchSeg)]
 
 - <p align="justify">Pedro Vinícius Almeida Borges de Venâncio, Adriano Chaves Lisboa, Adriano Vilela Barbosa: <a href="https://link.springer.com/article/10.1007/s00521-022-07467-z"> An automatic fire detection system based on deep convolutional neural networks for low-power, resource-constrained devices. </a> In: Neural Computing and Applications, 2022.</p>
 
 - Kirillov, A., Mintun, E., Ravi, N., Mao, H., Rolland, C., Gustafson, L., Xiao, T., Whitehead, S., Berg, A., Lo, W.Y., Dollar, P., & Girshick, R. (2023). Segment Anything. arXiv:2304.02643.
-
-
