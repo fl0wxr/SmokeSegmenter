@@ -70,6 +70,10 @@ python3 -m pip install -r requirements.txt
 ```
 Finally install [[Apex](https://github.com/nvidia/apex#installation)].
 
+## Next Steps
+
+First visit [[data_tools](https://github.com/fl0wxr/SmokeSegmenter/tree/master/data_tools)] to perform the semi-annotation, and carefully follow all instructions given by the corresponding `README.md`. After that you may train your own segmentation model through [[primary_segmenter](https://github.com/fl0wxr/SmokeSegmenter/tree/master/primary_segmenter)].
+
 ## Citation
 
 - ycszen. Image segmentation tools. [[TorchSeg](https://github.com/ycszen/TorchSeg)]
