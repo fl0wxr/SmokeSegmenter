@@ -10,7 +10,7 @@ This directory contains essential tools necessary for constructing and refining 
 data_tools
 ├── fig0.jpg
 ├── fig1.png
-├── fig2.jpg
+├── fig2.png
 ├── README.md
 └── src
     ├── blacklist
@@ -46,7 +46,7 @@ The paths of the data's directory along with the SAM model's file path should be
 
 The proper creation of pseudo-labels for the task of smoke segmentation, depends on the SAM and a human assisted by a UI to filter out all bad labels.
 
-![](./fig2.jpg)
+![](./fig2.png)
 
 ### Automatic Smoke Mask Generation
 
