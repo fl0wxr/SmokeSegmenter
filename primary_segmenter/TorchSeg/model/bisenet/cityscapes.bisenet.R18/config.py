@@ -84,10 +84,10 @@ C.lr = 1e-2
 C.lr_power = 0.9
 C.momentum = 0.9
 C.weight_decay = 5e-4
-C.batch_size = 4  # 4 * C.num_gpu - default value was 16
-C.nepochs = 80
-C.niters_per_epoch = 1000
-C.num_workers = 24
+C.batch_size = 4 ## 4 * C.num_gpu - default value was 16
+C.nepochs = 100 ## default 80
+C.niters_per_epoch = 1000 ## default 1000
+C.num_workers = 16 ## default 24
 C.train_scale_array = [0.75, 1, 1.25, 1.5, 1.75, 2.0]
 
 """Eval Config"""
@@ -99,7 +99,7 @@ C.eval_base_size = 640
 C.eval_crop_size = 640
 
 """Display Config"""
-C.snapshot_iter = 50 ## Epoch Checkpoint
+C.snapshot_iter = 20 ## Epoch Checkpoint
 C.record_info_iter = 20
 C.display_iter = 50
 

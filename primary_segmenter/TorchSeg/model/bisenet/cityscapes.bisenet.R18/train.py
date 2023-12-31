@@ -155,7 +155,6 @@ with Engine(custom_parser=parser) as engine:
                                                 config.log_dir,
                                                 config.log_dir_link)
             elif not engine.distributed:
-                breakpoint()
                 engine.save_and_link_checkpoint(config.snapshot_dir,
                                                 config.log_dir,
                                                 config.log_dir_link)
