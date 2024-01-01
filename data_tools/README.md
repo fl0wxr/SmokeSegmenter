@@ -83,7 +83,7 @@ This interface empowers the user to make intuitive judgments regarding the *accu
 
 ### Blacklist
 
-The next step is to copy all the non-blacklisted files, up until the checkpoint (see path inside `./data_tools/src/blacklist/session.path`) considering a reversed alphanumerically order of each instance's file path.
+The next step is to copy all the non-blacklisted files, up until the checkpoint (see path inside `./data_tools/src/blacklist/session.path`) considering a alphanumerically reversed order of each instance's file path.
 
 To apply this copy automatically, simply execute
 ```

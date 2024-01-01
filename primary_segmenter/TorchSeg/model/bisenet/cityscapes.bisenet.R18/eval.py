@@ -39,7 +39,7 @@ class SegEvaluator(Evaluator):
             comp_img = show_img(colors, config.background, image, clean,
                                 label,
                                 pred)
-            
+
             cv2.imshow('comp_image', comp_img)
             cv2.waitKey(0)
 
@@ -48,8 +48,14 @@ class SegEvaluator(Evaluator):
             cv2.imwrite(os.path.join(self.save_path, fn), pred)
             logger.info('Save the image ' + fn)
 
-            if comp_img is not None:
-                cv2.imwrite(os.path.join(self.save_path, 'comp_' + data['fn'] + '.png'), comp_img)
+            colors = self.dataset.get_class_colors
+            image = img
+            clean = np.zeros(label.shape)
+            comp_img = show_img(colors, config.background, image, clean,
+                                label,
+                                pred)
+
+            cv2.imwrite(os.path.join(self.save_path, 'comp_' + data['fn'] + '.png'), comp_img)
 
         return results_dict
 

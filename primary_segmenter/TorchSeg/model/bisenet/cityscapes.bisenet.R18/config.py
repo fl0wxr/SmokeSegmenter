@@ -99,9 +99,9 @@ C.eval_base_size = 640
 C.eval_crop_size = 640
 
 """Display Config"""
-C.snapshot_iter = 20 ## Epoch Checkpoint
-C.record_info_iter = 20
-C.display_iter = 50
+C.snapshot_iter = 1 ## Epoch Checkpoint
+C.record_info_iter = 1
+C.display_iter = 2
 
 
 def open_tensorboard():
