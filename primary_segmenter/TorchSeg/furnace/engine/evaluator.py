@@ -160,6 +160,7 @@ class Evaluator(object):
 
     # evaluate the whole image at once
     def whole_eval(self, img, output_size, input_size=None, device=None):
+
         if input_size is not None:
             img, margin = self.process_image(img, input_size)
         else:
@@ -190,17 +191,6 @@ class Evaluator(object):
             processed_pred += self.scale_process(img_scale, (ori_rows, ori_cols), crop_size, stride_rate, device)
 
         pred = processed_pred.argmax(2)
-
-        ## ! Debugging: Begin
-
-        # from matplotlib import pyplot as plt
-        # import matplotlib
-        # matplotlib.use("TkAgg")
-        # def show(x):
-        #     plt.imshow(x)
-        #     plt.show()
-
-        ## ! Debugging: End
 
         return pred
 
