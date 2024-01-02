@@ -16,7 +16,7 @@ to generate all instance file paths in order for TorchSeg to be able to find the
 
 ### Notable Functionality
 
-This section assumes that you have followed the instructions of `/README.md` and `./data_tools/README.md`.
+This section assumes that you have followed the instructions of `/README.md` and `./data_tools/README.md`. Before doing anything, first the `config.py` has to be examined and be set correctly.
 
 #### R18
 
@@ -34,10 +34,13 @@ To use the model for prediction/estimation on the validation set apply
 ```
 python3 eval.py
 ```
-You can use the `-s` option to cycle through the validation set and display a slideshow of prediction plots.
+You can use the `-s` option to enable a slideshow of figures showcasing the prediction of each individual validation instance. Each such figure is composed of 3 stacked images (input - prediction - ground truth).
 
-<!-- {fig0.png} -->
+All the predictions of validation instances, along with their mentioned prediction results, can be stored at a directory path set by the argument `-p`. An example follows
+```
+python3 eval.py -p ../../../predicted_results
+```
 
 ## Added Utilities
 
-- During training, the mean IU plot (computed on the validation set) is updated epoch-wise and stoed as `metrics.png`. This image file is located inside the respective model directory.
+- During training, the mean IU plot (computed on the validation set) is updated epoch-wise and stored as `metrics.png` helping the AI developer to monitor the training's progress. This image file is located inside the respective model directory.
