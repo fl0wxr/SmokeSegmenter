@@ -4,7 +4,7 @@ The objective of this repository is to provide the means to create a large image
 
 ## Demo
 
-This current BiSeNet model relies on the R18 backbone, and is pre-trained on the Cityscapes dataset, with the total number of epochs set to 30.
+The following BiSeNet model relies on the R18 backbone, and is pre-trained on the Cityscapes dataset, with the total number of epochs set to 30.
 
 - Number of train instances 2400
 - Number of test instances 287
@@ -18,7 +18,7 @@ The left image shows the input, the middle image is the combination of the input
 
 ![](./fig2.png)
 
-The depicted mean IU is computed on the validation set.
+The depicted plot of mean IU is computed on the validation set.
 
 ## Release Log
 
