@@ -16,7 +16,7 @@ to generate all instance file paths in order for TorchSeg to be able to find the
 
 ### Notable Functionality
 
-This section assumes that you have followed the instructions of `/README.md` and `./data_tools.README.md`.
+This section assumes that you have followed the instructions of `/README.md` and `./data_tools/README.md`.
 
 #### R18
 
