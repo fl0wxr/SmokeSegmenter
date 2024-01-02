@@ -21,6 +21,18 @@ from engine.lr_policy import PolyLR
 from engine.engine import Engine
 from seg_opr.loss_opr import SigmoidFocalLoss, ProbOhemCrossEntropy2d
 
+from seg_opr.metric import intersectionAndUnion
+from seg_opr.metric import meanIoU
+
+from utils.pyt_utils import parse_devices
+from eval import SegEvaluator
+
+import numpy as np
+from utils.visualize import generate_training_plot
+
+from copy import deepcopy
+
+
 try:
     from apex.parallel import DistributedDataParallel, SyncBatchNorm
 except ImportError:
@@ -105,9 +117,37 @@ with Engine(custom_parser=parser) as engine:
     if engine.continue_state_object:
         engine.restore_checkpoint()
 
+    ## ! Segmenter evaluation: Begin
+
+    data_setting = {'img_root': config.img_root_folder,
+                'gt_root': config.gt_root_folder,
+                'train_source': config.train_source,
+                'eval_source': config.eval_source}
+    # dataset_train = Cityscapes(data_setting, 'train', None)
+    dataset_val = Cityscapes(data_setting, 'val', None)
+
+    # SegEvaluator_train = SegEvaluator(dataset_train, config.num_classes, config.image_mean,
+    #                          config.image_std, model,
+    #                          config.eval_scale_array, config.eval_flip,
+    #                          parse_devices(None), None, None,
+    #                          None, 'train')
+    SegEvaluator_val = SegEvaluator(dataset_val, config.num_classes, config.image_mean,
+                             config.image_std, model,
+                             config.eval_scale_array, config.eval_flip,
+                             parse_devices(None), None, None,
+                             None, 'val')
+
+    ## ! Segmenter evaluation: End
+
     model.train()
 
     for epoch in range(engine.state.epoch, config.nepochs):
+
+        ## Segmenter evaluation
+        # SegEvaluator_train.run_training(model)
+        metrics_ = SegEvaluator_val.run_training(deepcopy(model))
+        engine.update_metrics(metrics_)
+
         if engine.distributed:
             train_sampler.set_epoch(epoch)
         bar_format = '{desc}[{elapsed}<{remaining},{rate_fmt}]'
@@ -145,9 +185,13 @@ with Engine(custom_parser=parser) as engine:
             print_str = 'Epoch{}/{}'.format(epoch, config.nepochs) \
                         + ' Iter{}/{}:'.format(idx + 1, config.niters_per_epoch) \
                         + ' lr=%.2e' % lr \
-                        # + ' loss=%.2f' % reduce_loss.item()
+                        + ' loss=%.2f' % loss.item() \
+                        # + ' reduced loss=%.2f' % reduce_loss.item()
 
             pbar.set_description(print_str, refresh=False)
+
+        ## Metrics plot save
+        generate_training_plot(engine.state.metrics, out_fp = './metrics.png')
 
         if epoch % config.snapshot_iter == 0:
             if engine.distributed and (engine.local_rank == 0):

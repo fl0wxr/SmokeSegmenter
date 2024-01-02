@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import scipy.io as sio
+from matplotlib import pyplot as plt
 
 
 def set_img_color(colors, background, img, gt, show255=False):
@@ -86,3 +87,14 @@ def print_iou(iu, mean_pixel_acc, class_names=None, show_no_back=False,
     if not no_print:
         print(line)
     return line
+
+def generate_training_plot(metrics, out_fp):
+
+    plt.figure()
+    plt.plot(range(len(metrics['mean_IU'])), metrics['mean_IU'], color='red')
+    plt.grid(True)
+    plt.xticks(list(range(len(metrics['mean_IU']))))
+    plt.xlabel('Epochs')
+    plt.ylabel('mean_IU')
+    # plt.title('Metrics')
+    plt.savefig(out_fp, dpi = 300)

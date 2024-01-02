@@ -26,6 +26,13 @@ class SegEvaluator(Evaluator):
         label = data['label']
         name = data['fn']
 
+        ## Useful for train set - Takes an insane amount of time - Must be refactored
+        # if type(img) == torch.Tensor:
+        #     img = img.numpy()
+        #     label = label.numpy()
+        # if img.dtype.name != 'uint8':
+        #     img = img.astype(np.uint8)
+
         pred = self.sliding_eval(img, config.eval_crop_size, config.eval_stride_rate, device=device)
         hist_tmp, labeled_tmp, correct_tmp = hist_info(config.num_classes, pred, label)
         results_dict = {'hist': hist_tmp, 'labeled': labeled_tmp, 'correct': correct_tmp}
@@ -60,6 +67,7 @@ class SegEvaluator(Evaluator):
         return results_dict
 
     def compute_metric(self, results):
+
         hist = np.zeros((config.num_classes, config.num_classes))
         correct = 0
         labeled = 0
@@ -73,8 +81,22 @@ class SegEvaluator(Evaluator):
         iu, mean_IU, _, mean_pixel_acc = compute_score(hist, correct,
                                                        labeled)
         result_line = print_iou(iu, mean_pixel_acc,
-                                dataset.get_class_names(), True)
+                                self.dataset.get_class_names(), True)
         return result_line
+
+    def compute_metric_num(self, results):
+
+        hist = np.zeros((config.num_classes, config.num_classes))
+        correct = 0
+        labeled = 0
+        count = 0
+        for d in results:
+            hist += d['hist']
+            correct += d['correct']
+            labeled += d['labeled']
+            count += 1
+
+        return compute_score(hist, correct, labeled)
 
 
 if __name__ == "__main__":
@@ -98,6 +120,7 @@ if __name__ == "__main__":
     dataset = Cityscapes(data_setting, 'val', None)
 
     with torch.no_grad():
+
         segmentor = SegEvaluator(dataset, config.num_classes, config.image_mean,
                                  config.image_std, network,
                                  config.eval_scale_array, config.eval_flip,

@@ -8,3 +8,4 @@ datasets/config_new/*
 primary_segmenter/TorchSeg/predicted_results/*
 !primary_segmenter/TorchSeg/predicted_results/.gitkeep
 **/log
+primary_segmenter/TorchSeg/model/**/metrics.png

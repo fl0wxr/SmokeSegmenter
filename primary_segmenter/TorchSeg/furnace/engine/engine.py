@@ -27,11 +27,12 @@ class State(object):
         self.dataloader = None
         self.model = None
         self.optimizer = None
+        self.metrics = {'mean_IU': [], 'mean_pixel_acc': []}
 
     def register(self, **kwargs):
         for k, v in kwargs.items():
             assert k in ['epoch', 'iteration', 'dataloader', 'model',
-                         'optimizer']
+                         'optimizer', 'metrics']
             setattr(self, k, v)
 
 
@@ -82,9 +83,14 @@ class Engine(object):
     def register_state(self, **kwargs):
         self.state.register(**kwargs)
 
-    def update_iteration(self, epoch, iteration):
+    def update_iteration(self, epoch, iteration, metrics_ = None):
         self.state.epoch = epoch
         self.state.iteration = iteration
+
+    def update_metrics(self, metrics_):
+        if metrics_ is not None:
+            self.state.metrics['mean_IU'].append(metrics_['mean_IU'])
+            self.state.metrics['mean_pixel_acc'].append(metrics_['mean_pixel_acc'])
 
     def save_checkpoint(self, path):
         logger.info("Saving checkpoint to file {}".format(path))
@@ -103,6 +109,7 @@ class Engine(object):
         state_dict['optimizer'] = self.state.optimizer.state_dict()
         state_dict['epoch'] = self.state.epoch
         state_dict['iteration'] = self.state.iteration
+        state_dict['metrics'] = self.state.metrics
 
         t_iobegin = time.time()
         torch.save(state_dict, path)
@@ -144,6 +151,7 @@ class Engine(object):
         self.state.optimizer.load_state_dict(tmp['optimizer'])
         self.state.epoch = tmp['epoch'] + 1
         self.state.iteration = tmp['iteration']
+        self.state.metrics = tmp['metrics']
         del tmp
         t_end = time.time()
         logger.info(

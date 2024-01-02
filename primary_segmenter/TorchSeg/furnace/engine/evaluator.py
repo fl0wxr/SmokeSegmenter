@@ -19,8 +19,9 @@ logger = get_logger()
 class Evaluator(object):
     def __init__(self, dataset, class_num, image_mean, image_std, network,
                  multi_scales, is_flip, devices,
-                 verbose=False, save_path=None, show_image=False):
+                 verbose=False, save_path=None, show_image=False, data_name = None):
         self.dataset = dataset
+        self.data_name = data_name
         self.ndata = self.dataset.get_length()
         self.class_num = class_num
         self.image_mean = image_mean
@@ -39,6 +40,37 @@ class Evaluator(object):
         if save_path is not None:
             ensure_dir(save_path)
         self.show_image = show_image
+
+    def run_training(self, model):
+
+        logger.info('Evaluating ...')
+
+        stride = int(np.ceil(self.ndata))
+        all_results = []
+
+        e_record = min(stride, self.ndata)
+        shred_list = [list(range(0, e_record))]
+
+        self.val_func = model
+        self.val_func.is_training = False
+
+        with torch.no_grad():
+
+            self.worker(shred_list[0], self.devices[0])
+
+            for _ in tqdm(range(self.ndata)):
+                t = self.results_queue.get()
+                all_results.append(t)
+                del t
+                if self.verbose:
+                    self.compute_metric(all_results)
+
+            iu, mean_IU, _, mean_pixel_acc = self.compute_metric_num(all_results)
+
+        self.val_func.is_training = True
+        logger.info('Evaluation Completed')
+
+        return {'mean_IU': mean_IU, 'mean_pixel_acc': mean_pixel_acc}
 
     def run(self, model_path, model_indice, log_file, log_file_link):
         """There are four evaluation modes:
@@ -151,6 +183,7 @@ class Evaluator(object):
             dd = self.dataset[idx]
             results_dict = self.func_per_iteration(dd, device)
             self.results_queue.put(results_dict)
+        print('DEBUG: ', results_dict)
 
     def func_per_iteration(self, data, device):
         raise NotImplementedError
