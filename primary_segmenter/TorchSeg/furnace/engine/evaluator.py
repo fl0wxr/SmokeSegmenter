@@ -183,7 +183,6 @@ class Evaluator(object):
             dd = self.dataset[idx]
             results_dict = self.func_per_iteration(dd, device)
             self.results_queue.put(results_dict)
-        print('DEBUG: ', results_dict)
 
     def func_per_iteration(self, data, device):
         raise NotImplementedError
