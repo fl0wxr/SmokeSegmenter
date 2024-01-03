@@ -22,11 +22,9 @@ The depicted plot of mean IU is computed on the validation set.
 
 ## Release Log
 
-### Release v0.9.0
+### Release v1.0.0
 
-- Figure with mean IU plot during training
-- ~~Access to moderately trained S-smoke segmenters~~ (postponed)
-- Documentation for the pre-trained smoke segmentation
+- PIDNet architecture
 
 ## D-Fire - External Dataset
 
