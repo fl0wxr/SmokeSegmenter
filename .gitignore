@@ -5,7 +5,7 @@ datasets/*
 !datasets/config_new
 datasets/config_new/*
 !datasets/config_new/gen_ssmoke_path_lists.py
-primary_segmenter/TorchSeg/predicted_results/*
-!primary_segmenter/TorchSeg/predicted_results/.gitkeep
+primary_segmenters/TorchSeg/predicted_results/*
+!primary_segmenters/TorchSeg/predicted_results/.gitkeep
 **/log
-primary_segmenter/TorchSeg/model/**/metrics.png
+primary_segmenters/TorchSeg/model/**/metrics.png

@@ -97,3 +97,4 @@ def generate_training_plot(metrics, out_fp):
     plt.ylabel('mean_IU')
     # plt.title('Metrics')
     plt.savefig(out_fp, dpi = 300)
+    plt.close()
