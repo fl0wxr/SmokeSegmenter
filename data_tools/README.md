@@ -18,11 +18,12 @@ data_tools
     │   └── session.path
     ├── config
     │   └── paths.json
+    ├── gen_ssmoke_path_lists.py
+    ├── preprocess_color.py
     ├── semi_auto_annotation
     │   ├── auto_annot.py
     │   ├── build_curated_dataset.py
     │   ├── combine_segm_instances.py
-    │   ├── fig0.jpg
     │   └── oracle_evaluation.py
     └── utils
         ├── bbox2segm_mask.py

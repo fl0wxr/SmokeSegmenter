@@ -146,7 +146,7 @@ class SegmVisuals:
 
     def store_fig(self, fp):
 
-        plt.savefig(fp, dpi = 1200)
+        plt.savefig(fp, dpi = 300)
         plt.close()
         # self.fig.clear()
 

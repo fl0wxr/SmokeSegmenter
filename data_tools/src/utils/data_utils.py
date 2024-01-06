@@ -167,8 +167,8 @@ class SegmData:
     def get_one_segm_instance_ssmoke_dp(self, img_fp: str = None, mask_fp: str = None):
 
         if img_fp == None or mask_fp == None:
-            img_fp = self.dataset_dp + 'images/' + 'AoF06978' + '.jpg'
-            mask_fp = self.dataset_dp + 'seg_labels/' + 'AoF06978' + '.png'
+            img_fp = self.dataset_dp + 'test/images/' + 'AoF06978' + '.jpg'
+            mask_fp = self.dataset_dp + 'test/seg_labels/' + 'AoF06978' + '.png'
 
         ## ! Parse: Begin
 

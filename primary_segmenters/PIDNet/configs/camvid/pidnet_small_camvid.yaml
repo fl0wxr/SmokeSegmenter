@@ -1,0 +1,55 @@
+CUDNN:
+  BENCHMARK: true
+  DETERMINISTIC: false
+  ENABLED: true
+GPUS: (0,)
+OUTPUT_DIR: '../../models/PIDNet/finetuned'
+LOG_DIR: '../../models/PIDNet/finetuned/log'
+WORKERS: 3
+PRINT_FREQ: 10
+
+DATASET:
+  DATASET: camvid
+  ROOT: ../../datasets/data_info/
+  TEST_SET: 'val.list'
+  TRAIN_SET: 'train.list'
+  NUM_CLASSES: 2
+MODEL:
+  NAME: pidnet_s
+  NUM_OUTPUTS: 2
+  PRETRAINED: "../../models/PIDNet/pretrained/PIDNet_S_Camvid_Test.pt"
+LOSS:
+  USE_OHEM: true
+  OHEMTHRES: 0.9
+  OHEMKEEP: 131072
+  BALANCE_WEIGHTS: [0.4, 1.0]
+  SB_WEIGHTS: 1.0
+TRAIN:
+  IMAGE_SIZE:
+  - 640
+  - 640
+  BASE_SIZE: 640
+  BATCH_SIZE_PER_GPU: 4
+  SHUFFLE: true
+  BEGIN_EPOCH: 0
+  END_EPOCH: 100
+  RESUME: false
+  OPTIMIZER: sgd
+  LR: 0.005
+  WD: 0.0005
+  MOMENTUM: 0.9
+  NESTEROV: false
+  FLIP: true
+  MULTI_SCALE: true
+  IGNORE_LABEL: -1
+  SCALE_FACTOR: 16
+TEST:
+  IMAGE_SIZE:
+  - 640
+  - 640
+  BASE_SIZE: 640
+  BATCH_SIZE_PER_GPU: 1
+  FLIP_TEST: false
+  MULTI_SCALE: false
+  MODEL_FILE: '../../models/PIDNet/finetuned/final_model/PIDNet_S_Camvid_Test_ssmoke/best.pt'
+  OUTPUT_INDEX: 1
