@@ -1,6 +1,6 @@
 # Smoke Segmentation Project
 
-The objective of this repository is to provide the means to create a large image dataset for the task of smoke segmentation. It also provides the corresponding tools (including a segmentation UI) for image data curation and a guide to automatically convert a large amount of image detection-based labels to image segmentation labels. Additionally it encompasses the methods and tools to fine-tune a pre-trained smoke segmentation model based on external pre-trained segmenters.
+The objective of this repository is to provide the means to create a large image dataset for the task of smoke segmentation based on a semi-automatic labelling method . It also provides the corresponding tools (including a segmentation UI) for image data curation and a guide to automatically convert a large amount of image detection-based labels to image segmentation labels. Additionally it encompasses the methods and tools to fine-tune a pre-trained smoke segmentation model based on external pre-trained segmenters.
 
 ## Fine-Tuned Models
 
@@ -20,7 +20,7 @@ The resulting predictions along with a metrics diagram follows, showcasing the m
 ![](./fig0.png)
 ![](./fig1.png)
 
-The left image shows the input, the middle image is the combination of the input with the predicted segmentation mask, and the right image is the (pseudo) ground truth mask acquired by SAM.
+The left image shows the input, the middle image is the combination of the input with the predicted segmentation mask, and the right image is the (pseudo) ground truth mask acquired by [[SAM](https://segment-anything.com/)].
 
 ![](./fig2.png)
 
