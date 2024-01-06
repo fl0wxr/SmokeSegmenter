@@ -34,7 +34,7 @@ The depicted plot of mean IU is computed on the validation set.
 
 We name S-Smoke to be any dataset consisted of D-Fire's images, with segmentation ground truth masks produced for the task of image smoke segmentation, where the ground truth masks are generated from a pre-trained [[SAM](https://segment-anything.com/)] model, prompted by the bounding box labels of the D-Fire dataset. An oracle then filters out bad predictions.
 
-My produced dataset is named as `S-Smoke-var0`, and is consisted by
+Our produced dataset is named as `S-Smoke-var0`, and is consisted by
 - Number of train instances 2400
 - Number of test instances 287
 
