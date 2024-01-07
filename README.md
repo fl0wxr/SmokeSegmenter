@@ -119,7 +119,7 @@ Finally install [[Apex](https://github.com/nvidia/apex#installation)].
 
 ## Next Steps
 
-First visit [[data_tools](https://github.com/fl0wxr/SmokeSegmenter/tree/master/data_tools)] to perform the semi-annotation by carefully following all instructions given by the corresponding `README.md`. After that you may train your own segmentation models through [[primary_segmenter](https://github.com/fl0wxr/SmokeSegmenter/tree/master/primary_segmenter)].
+First visit [[data_tools](https://github.com/fl0wxr/SmokeSegmenter/tree/master/data_tools)] to perform the semi-annotation by carefully following all instructions given by the corresponding `README.md`. After that, you will acquire your own S-Smoke dataset and you may train your own segmentation models through [[primary_segmenter](https://github.com/fl0wxr/SmokeSegmenter/tree/master/primary_segmenter)].
 
 ## Citation
 
