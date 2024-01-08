@@ -8,10 +8,10 @@ Two models have been trained to get a comparison of how effective each is on the
 
 ## Results
 
-| Model         | Pre-trained @ | Fine-Tuned @  | mIU | mIU Smoke | Δt (~h) |
-|---------------|-------------|--------------|---------|---------------|---------|
-| BiSeNet - R18 | Cityscapes  | `S-Smoke-var0` | 80.81%  | 69.48%        | 3.5     |
-| PIDNet Small  | Camvid      | `S-Smoke-var0` | 81.12%  | 69.84%        | 2       |
+| Model         | Pre-trained @ | Fine-Tuned @  | mIU | mIU Smoke |
+|---------------|-------------|--------------|---------|---------------|
+| BiSeNet - R18 | Cityscapes  | `S-Smoke-var0` | 80.81%  | 69.48%        |
+| PIDNet Small  | Camvid      | `S-Smoke-var0` | 81.12%  | 69.84%        |
 
 ### Dataset Details
 
