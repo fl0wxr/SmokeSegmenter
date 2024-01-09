@@ -2,22 +2,22 @@ CUDNN:
   BENCHMARK: true
   DETERMINISTIC: false
   ENABLED: true
-GPUS: (0,1)
-OUTPUT_DIR: 'output'
-LOG_DIR: 'log'
+GPUS: (0,)
+OUTPUT_DIR: '../../models/PIDNet/finetuned'
+LOG_DIR: '../../models/PIDNet/finetuned/log'
 WORKERS: 3
 PRINT_FREQ: 10
 
 DATASET:
   DATASET: camvid
-  ROOT: data/
-  TEST_SET: 'list/camvid/val.lst'
-  TRAIN_SET: 'list/camvid/trainval.lst'
-  NUM_CLASSES: 11
+  ROOT: ../../datasets/data_info/
+  TEST_SET: 'val.list'
+  TRAIN_SET: 'train.list'
+  NUM_CLASSES: 2
 MODEL:
-  NAME: pidnet_m
+  NAME: pidnet_s
   NUM_OUTPUTS: 2
-  PRETRAINED: "pretrained_models/cityscapes/PIDNet_M_Cityscapes_test.pt"
+  PRETRAINED: "../../models/PIDNet/pretrained/PIDNet_S_Wider_Camvid_Test.pt"
 LOSS:
   USE_OHEM: true
   OHEMTHRES: 0.9
@@ -26,13 +26,13 @@ LOSS:
   SB_WEIGHTS: 1.0
 TRAIN:
   IMAGE_SIZE:
-  - 960
-  - 720
-  BASE_SIZE: 960
-  BATCH_SIZE_PER_GPU: 6
+  - 640
+  - 640
+  BASE_SIZE: 640
+  BATCH_SIZE_PER_GPU: 4
   SHUFFLE: true
   BEGIN_EPOCH: 0
-  END_EPOCH: 200
+  END_EPOCH: 100
   RESUME: false
   OPTIMIZER: sgd
   LR: 0.005
@@ -41,15 +41,15 @@ TRAIN:
   NESTEROV: false
   FLIP: true
   MULTI_SCALE: true
-  IGNORE_LABEL: 255
+  IGNORE_LABEL: -1
   SCALE_FACTOR: 16
 TEST:
   IMAGE_SIZE:
-  - 960
-  - 720
-  BASE_SIZE: 960
+  - 640
+  - 640
+  BASE_SIZE: 640
   BATCH_SIZE_PER_GPU: 1
   FLIP_TEST: false
   MULTI_SCALE: false
-  MODEL_FILE: ''
+  MODEL_FILE: '../../models/PIDNet/finetuned/final_model/PIDNet_S_Wider_Camvid_Test_ssmoke/best.pt'
   OUTPUT_INDEX: 1

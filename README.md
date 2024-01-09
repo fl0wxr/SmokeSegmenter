@@ -1,19 +1,19 @@
 # Smoke Segmentation Project
 
-The objective of this repository is to facilitate the creation of an expansive image dataset specifically tailored for smoke segmentation tasks, leveraging a semi-automatic labeling approach. It offers a comprehensive suite of tools, notably including a segmentation UI, designed for efficient image data curation. Additionally, the repository provides a guide on automating the conversion of image detection-based labels into image segmentation labels. Moreover, it encompasses methodologies and tools essential for fine-tuning pre-trained smoke segmentation models, leveraging external pre-trained segmenters for enhanced model performance and adaptability.
+Smoke segmentation data is scarce online, and the already existing available datasets are either poorly segmented or limited in size. The objective of this repository is to facilitate the creation of an expansive image dataset specifically tailored for smoke segmentation tasks, leveraging a semi-automatic labeling approach based on a foundation model called SAM. This repository offers a comprehensive suite of tools, notably including a segmentation UI, designed for an oracle to filter out (or blacklist) poorly predicted pseudo-ground-truth segmentation masks. Moreover, it encompasses methodologies and tools essential for training smoke segmentation models.
 
 ## Fine-Tuned Models
 
-Two models have been trained to get a comparison of how effective each is on the task of smoke segmentation.
+Two models have been trained on our smoke segmentation dataset (namely `S-Smoke-var0`) to get a comparison of how effective each is on the task of smoke segmentation.
 
 ## Results
 
-| Model         | Pre-trained @ | Fine-Tuned @  | mIU | mIU Smoke |
-|---------------|-------------|--------------|---------|---------------|
-| BiSeNet - R18 | Cityscapes  | `S-Smoke-var0` | 80.81%  | 69.48%        |
-| PIDNet Small  | Camvid      | `S-Smoke-var0` | 81.12%  | 69.84%        |
+| Model         | Pre-trained @ | mIU     | mIU Smoke     | FPS  |
+|---------------|---------------|---------|---------------|------|
+| BiSeNet - R18 | Cityscapes    | 80.81%  | 69.48%        | 21.4 |
+| PIDNet Small  | Camvid        | 81.64%  | 70.69%        | 25.7 |
 
-### Dataset Details
+### Details
 
 The resulting predictions along with a metrics diagram follows, showcasing the model's performance and its training potential.
 
@@ -25,6 +25,10 @@ The left image shows the input, the middle image is the combination of the input
 ![](./fig2.png)
 
 The depicted plot of mean IU is computed on the validation set.
+
+#### Specs & OS
+
+All the experiments referenced were conducted on a system equipped with an Intel i5-12500H CPU, 38.9 GB of memory, and an RTX 4060 GPU (laptop version), running Ubuntu 22.04.3 LTS.
 
 ## D-Fire - External Dataset
 

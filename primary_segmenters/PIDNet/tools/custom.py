@@ -18,6 +18,7 @@ import models
 import torch
 import torch.nn.functional as F
 from PIL import Image
+from time import time
 
 mean = [0.485, 0.456, 0.406]
 std = [0.229, 0.224, 0.225]
@@ -66,12 +67,19 @@ if __name__ == '__main__':
     model = models.pidnet.get_pred_model(args.a, 2) ## Number of classes is 2
     model = load_pretrained(model, args.p).cuda()
     model.eval()
+    fps_ = []
     with torch.no_grad():
         for img_path in images_list:
+
+
             img_name = img_path.split('/')[-1]
             img = cv2.imread(os.path.join(args.r, img_name),
                                cv2.IMREAD_COLOR)
+
             img_ = deepcopy(img)
+
+            t0 = time()
+
             sv_img = np.zeros_like(img).astype(np.uint8)
             img = input_transform(img)
             img = img.transpose((2, 0, 1)).copy()
@@ -88,14 +96,14 @@ if __name__ == '__main__':
             img = img[0, ...]
             sv_img = sv_img[..., 0]
 
-            image_plot = visuals.SegmVisuals(classes = ['background', 'smoke'])
-            image_plot.build_plt(img = img_, mask = sv_img, fig_title = 'Smoke Segmentation')
-            image_plot.store_fig(fp = os.path.join(sv_path, 'comb_' + img_name.split('.')[0] + '.png'))
+            fps_.append(1/(time() - t0))
 
-            sv_img = Image.fromarray(sv_img)
-            sv_img.save(os.path.join(sv_path, img_name.split('.')[0] + '.png'))
+
+            # image_plot = visuals.SegmVisuals(classes = ['background', 'smoke'])
+            # image_plot.build_plt(img = img_, mask = sv_img, fig_title = 'Smoke Segmentation')
+            # image_plot.store_fig(fp = os.path.join(sv_path, 'comb_' + img_name.split('.')[0] + '.png'))
+
+            # sv_img = Image.fromarray(sv_img)
+            # sv_img.save(os.path.join(sv_path, img_name.split('.')[0] + '.png'))
             
-            
-            
-        
-        
+    print('FPS: %.1f'%(sum(fps_)/len(fps_)))

@@ -179,10 +179,14 @@ class Evaluator(object):
         start_load_time = time.time()
         logger.info('Load Model on Device %d: %.2fs' % (
             device, time.time() - start_load_time))
+        fps_ = []
         for idx in shred_list:
             dd = self.dataset[idx]
+            t0 = time.time()
             results_dict = self.func_per_iteration(dd, device)
+            fps_.append(1/(time.time()-t0))
             self.results_queue.put(results_dict)
+        print('FPS: %.1f'%(sum(fps_)/len(fps_)))
 
     def func_per_iteration(self, data, device):
         raise NotImplementedError

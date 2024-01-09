@@ -55,17 +55,21 @@ python3 eval.py -p ../../predicted_results
 ### Available Pretrained Models
 
 - Small PIDNet. Configuration file: `./configs/camvid/pidnet_small_camvid.yaml`.
+- Medium PIDNet. Configuration file: `./configs/camvid/pidnet_medium_camvid.yaml`
 
-#### Small PIDNET
+#### Example - Small PIDNET
 
 Navigate in `./primary_segmenters/PIDNet`.
 
 To train a model on S-Smoke apply
 ```
-python3 tools/train.py --cfg configs/camvid/pidnet_small_camvid.yaml GPUS "(0,)"
+python3 tools/train.py --cfg configs/camvid/pidnet_small_camvid.yaml
 ```
 To use the model for prediction/estimation on the validation set apply
 ```
-python3 tools/eval.py --cfg configs/camvid/pidnet_small_camvid.yaml GPUS "(0,)"
+python3 tools/eval.py --cfg configs/camvid/pidnet_small_camvid.yaml
 ```
-To produce segmentation mask files and their combined images one may use `tools/custom.py`.
+To produce segmentation mask files and their combined images one may use `tools/custom.py`. E.g.
+```
+python3 tools/custom.py --a pidnet-s --p ../../models/PIDNet/finetuned/final_model/PIDNet_S_Camvid_Test_ssmoke/best.pt --r <sample_dir>
+```
