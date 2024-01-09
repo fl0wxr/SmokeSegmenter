@@ -16,7 +16,7 @@ Two models have been trained on our smoke segmentation dataset (namely `S-Smoke-
 
 ### Details - Demo
 
-The resulting predictions along with a metrics diagram follows, showcasing the BiSeNet (R18) model's performance and its training potential.
+The resulting predictions along with a metrics diagram follows, showcasing the BiSeNet (R18 backbone) model's performance and its training potential.
 
 ![](./fig0.png)
 ![](./fig1.png)
