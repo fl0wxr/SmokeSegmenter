@@ -11,7 +11,8 @@ Two models have been trained on our smoke segmentation dataset (namely `S-Smoke-
 | Model         | Pre-trained @ | mIU     | mIU Smoke     | FPS  |
 |---------------|---------------|---------|---------------|------|
 | BiSeNet - R18 | Cityscapes    | 80.81%  | 69.48%        | 21.4 |
-| PIDNet Small  | Camvid        | 81.64%  | 70.69%        | 25.7 |
+| PIDNet Small  | Camvid        | 81.64%  | 70.69%        | 25.0 |
+| PIDNet Medium | Camvid        | 81.64%  | 70.57%        | 25.7 |
 
 ### Details - Demo
 
