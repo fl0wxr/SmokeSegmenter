@@ -13,9 +13,9 @@ Two models have been trained on our smoke segmentation dataset (namely `S-Smoke-
 | BiSeNet - R18 | Cityscapes    | 80.81%  | 69.48%        | 21.4 |
 | PIDNet Small  | Camvid        | 81.64%  | 70.69%        | 25.7 |
 
-### Details
+### Details - Demo
 
-The resulting predictions along with a metrics diagram follows, showcasing the model's performance and its training potential.
+The resulting predictions along with a metrics diagram follows, showcasing the BiSeNet (R18) model's performance and its training potential.
 
 ![](./fig0.png)
 ![](./fig1.png)
