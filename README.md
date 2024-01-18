@@ -1,6 +1,6 @@
 # Smoke Segmentation Project
 
-Smoke segmentation data is scarce online, and the already existing available datasets are either poorly segmented or limited in size. The objective of this repository is to facilitate the creation of an expansive image dataset specifically tailored for smoke segmentation tasks, leveraging a semi-automatic labeling approach based on a foundation model called SAM. This repository offers a comprehensive suite of tools, notably including a segmentation UI, designed for an oracle to filter out (or blacklist) poorly predicted pseudo-ground-truth segmentation masks. Moreover, it encompasses methodologies and tools essential for training smoke segmentation models.
+Smoke segmentation data is scarce online, and the already existing available datasets are either poorly segmented or limited in size. The objective of this repository is to facilitate the creation of an expansive image dataset specifically tailored for smoke segmentation tasks, leveraging a semi-automatic labeling approach based on a foundation model called [SAM](https://segment-anything.com/). This repository offers a comprehensive suite of tools, notably including a segmentation UI, designed for an oracle to filter out (or blacklist) poorly predicted pseudo-ground-truth segmentation masks. Moreover, it encompasses methodologies and tools essential for training smoke segmentation models.
 
 ## Fine-Tuned Models
 
@@ -17,14 +17,19 @@ Two models have been trained on our smoke segmentation dataset (namely `S-Smoke-
 
 The resulting predictions along with a metrics diagram follows, showcasing the BiSeNet (R18 backbone) model's performance and its training potential.
 
-![](./fig0.png)
-![](./fig1.png)
+<p align="center" style="font-size: 80%;">
+    <img src='./fig0.png' width='1000px' align='center'>
+    </br>
+    <img src='./fig1.png' width='1000px' align='center'>
+    </br>
+    Figure 1. The left image shows the input, the middle image is the combination of the input with the predicted segmentation mask, and the right image is the (pseudo) ground truth mask acquired by SAM.
+</p>
 
-The left image shows the input, the middle image is the combination of the input with the predicted segmentation mask, and the right image is the (pseudo) ground truth mask acquired by [[SAM](https://segment-anything.com/)].
-
-![](./fig2.png)
-
-The depicted plot of mean IU is computed on the validation set.
+<p align="center" style="font-size: 80%;">
+    <img src='./fig2.png' width='700px' align='center'>
+    </br>
+    Figure 2. Depicted mean IU plot computed on the test set.
+</p>
 
 #### Specs & OS
 
