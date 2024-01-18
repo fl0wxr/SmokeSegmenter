@@ -26,7 +26,7 @@ The resulting predictions along with a metrics diagram follows, showcasing the B
 </p>
 
 <p align="center" style="font-size: 80%;">
-    <img src='./fig2.png' width='700px' align='center'>
+    <img src='./fig2.png' width='500px' align='center'>
     </br>
     Figure 2. Depicted mean IU plot computed on the test set.
 </p>
