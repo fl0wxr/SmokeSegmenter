@@ -58,7 +58,6 @@ The proper creation of pseudo-labels for the task of smoke segmentation, depends
 <p align="center" style="font-size: 80%;">
     <img src='./fig2.png' width='700px' align='center'>
     </br>
-    Figure 2. Depicted mean IU plot computed on the test set.
 </p>
 
 ### Automatic Smoke Mask Generation
