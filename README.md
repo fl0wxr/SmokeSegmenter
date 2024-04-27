@@ -4,7 +4,7 @@ Smoke segmentation data is scarce online, and the already existing available dat
 
 ## Fine-Tuned Models
 
-Two models have been trained on our smoke segmentation dataset (namely `S-Smoke-var0`) to get a comparison of how effective each is on the task of smoke segmentation.
+Two models have been trained on our smoke segmentation dataset to get a comparison of how effective each is on the task of smoke segmentation.
 
 ## Results
 
@@ -128,7 +128,7 @@ Finally install [[Apex](https://github.com/nvidia/apex#installation)].
 
 ## Next Steps
 
-First visit [[data_tools](https://github.com/fl0wxr/SmokeSegmenter/tree/master/data_tools)] to perform the semi-annotation by carefully following all instructions given by the corresponding `README.md`. After that, you will acquire your own S-Smoke dataset and you may train your own segmentation models through [[primary_segmenter](https://github.com/fl0wxr/SmokeSegmenter/tree/master/primary_segmenter)].
+First visit [[data_tools](https://github.com/fl0wxr/SmokeSegmenter/tree/master/data_tools)] to perform the semi-annotation by carefully following all instructions given by the corresponding `README.md`. After that, you will acquire your own S-Smoke dataset and you may train your own segmentation models through [[primary_segmenter](https://github.com/fl0wxr/SmokeSegmenter/tree/master/primary_segmenters)].
 
 ## Citation
 
